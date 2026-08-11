@@ -352,6 +352,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 
 
 
+
+
+
+
+
+
+
+
 // ══════════════════════════════════════════════════════════════
 // BELLMAN OPS – Hotel Operations App
 // Version 8 – Clean rebuild
@@ -2247,7 +2255,7 @@ function roomClToggle(num,id){
   if(d.status==='open')d.status='in_progress';
   if(!d.items)d.items={};
   d.items[id]=!d.items[id];
-  saveRoomClData();render();
+  saveRoomClData();
 }
 function roomClMaengelToggle(num,idx){
   var d=getRoomCl(num);
@@ -2255,7 +2263,7 @@ function roomClMaengelToggle(num,idx){
   if(d.status==='open')d.status='in_progress';
   if(!d.maengelDone)d.maengelDone={};
   d.maengelDone[idx]=!d.maengelDone[idx];
-  saveRoomClData();render();
+  saveRoomClData();
 }
 function roomClNote(num,val){
   var d=getRoomCl(num);d.notes=val;saveRoomClData();
@@ -2263,127 +2271,183 @@ function roomClNote(num,val){
 
 function renderRoomChecklistTab(){
   var u=eu();
-  var canEdit=(u.dept==='technik'||u.dept==='admin');
   var floors=[[101,118],[201,219],[301,318],[401,417],[501,517],[601,609]];
   var etNames=['1. OG','2. OG','3. OG','4. OG','5. OG','6. OG'];
   var total=0,done=0,inProg=0;
-  var allRooms=[];
-  for(var i=0;i<floors.length;i++){
-    for(var n=floors[i][0];n<=floors[i][1];n++){
-      var rm=String(n);
-      if(ROOM_MAENGEL[rm]!==undefined||true){
-        allRooms.push(rm);
-        total++;
-        var rd=roomClData[rm];
-        if(rd&&rd.status==='done')done++;
-        else if(rd&&rd.status==='in_progress')inProg++;
-      }
+  for(var fi=0;fi<floors.length;fi++){
+    for(var n=floors[fi][0];n<=floors[fi][1];n++){
+      total++;
+      var rd=roomClData[String(n)];
+      if(rd&&rd.status==='done')done++;
+      else if(rd&&rd.items&&Object.keys(rd.items).some(function(k){return rd.items[k];}))inProg++;
     }
   }
   var h='';
   h+='<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">Zimmer-Wartungscheckliste</div>';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">Mängelprotokoll 18. März 2026 + Standardwartung</div>';
   h+='<div style="display:flex;gap:8px;margin-bottom:16px">';
   h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ff6666">'+(total-done-inProg)+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">Offen</div></div>';
   h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ffaa33">'+inProg+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">In Arbeit</div></div>';
   h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#22cc44">'+done+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">Fertig</div></div>';
   h+='</div>';
-  for(var fi=0;fi<floors.length;fi++){
+  for(var fi2=0;fi2<floors.length;fi2++){
     var fRooms=[];
-    for(var fn2=floors[fi][0];fn2<=floors[fi][1];fn2++){
-      fRooms.push(String(fn2));
-    }
+    for(var fn2=floors[fi2][0];fn2<=floors[fi2][1];fn2++) fRooms.push(String(fn2));
     var fDone=fRooms.filter(function(r){return roomClData[r]&&roomClData[r].status==='done';}).length;
-    var fProg=fRooms.filter(function(r){return roomClData[r]&&roomClData[r].status==='in_progress';}).length;
     h+='<div style="margin-bottom:12px">';
-    h+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06)">';
-    h+=etNames[fi]+' <span style="color:#22cc44">'+fDone+'/'+fRooms.length+'</span>';
-    if(fProg>0)h+=' <span style="color:#ffaa33">'+fProg+' aktiv</span>';
-    h+='</div>';
+    h+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06)">'+etNames[fi2]+' <span style="color:#22cc44">'+fDone+'/'+fRooms.length+'</span></div>';
     for(var fj=0;fj<fRooms.length;fj++){
       var num=fRooms[fj];
       var rd2=roomClData[num]||{status:'open',items:{},notes:'',maengelDone:{}};
       var maengel=ROOM_MAENGEL[num]||[];
-      var hasMaengel=maengel.length>0;
-      var mDone=0;
-      if(hasMaengel&&rd2.maengelDone){for(var mi=0;mi<maengel.length;mi++)if(rd2.maengelDone[mi])mDone++;}
-      var iDone=0;
-      if(rd2.items)for(var kk in rd2.items)if(rd2.items[kk])iDone++;
-      var totalItems=ROOM_CL_ITEMS.length+(hasMaengel?maengel.length:0);
+      var iDone=0; if(rd2.items)for(var kk in rd2.items)if(rd2.items[kk])iDone++;
+      var mDone=0; if(rd2.maengelDone)for(var mi=0;mi<maengel.length;mi++)if(rd2.maengelDone[mi])mDone++;
       var totalDone=iDone+mDone;
-      var pct=totalItems>0?Math.round(totalDone/totalItems*100):0;
+      var totalItems=ROOM_CL_ITEMS.length+maengel.length;
       var isDone=rd2.status==='done';
-      var stLbl=isDone?'Fertig':totalDone>0?'In Arbeit':'Offen';
       var stCol=isDone?'#22cc44':totalDone>0?'#ffaa33':'rgba(255,255,255,.3)';
-      var borderCol=isDone?'rgba(34,200,68,.4)':hasMaengel?'rgba(255,102,102,.25)':'rgba(255,255,255,.06)';
-      h+='<details style="background:var(--navy2);border-radius:10px;margin-bottom:5px;border:1px solid '+borderCol+'">';
-      h+='<summary style="padding:10px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none;-webkit-appearance:none">';
+      var stLbl=isDone?'Fertig':totalDone>0?(totalDone+'/'+totalItems):maengel.length>0?(maengel.length+' M'):'Offen';
+      var borderCol=isDone?'rgba(34,200,68,.3)':maengel.length>0?'rgba(255,102,102,.2)':'rgba(255,255,255,.06)';
+      h+='<div data-rcl-room="'+num+'" style="background:var(--navy2);border-radius:8px;margin-bottom:4px;border:1px solid '+borderCol+';padding:10px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">';
       h+='<div><span style="font-size:15px;font-weight:700;color:'+(isDone?'#22cc44':'var(--white)')+'">Zi. '+num+'</span>';
-      if(hasMaengel)h+=' <span style="font-size:10px;background:rgba(255,100,100,.2);color:#ff8888;padding:1px 5px;border-radius:3px;margin-left:4px">'+maengel.length+' Mängel</span>';
+      if(maengel.length>0) h+=' <span style="font-size:10px;background:rgba(255,100,100,.2);color:#ff8888;padding:1px 5px;border-radius:3px;margin-left:4px">'+maengel.length+' M</span>';
       h+='</div>';
-      h+='<div style="display:flex;align-items:center;gap:8px">';
-      h+='<span style="font-size:10px;color:rgba(255,255,255,.4)">'+totalDone+'/'+totalItems+'</span>';
-      h+='<span style="font-size:11px;color:'+stCol+';font-weight:600">'+stLbl+'</span>';
-      h+='<span style="color:rgba(255,255,255,.3);font-size:12px">▼</span>';
-      h+='</div></summary>';
-      h+='<div style="padding:0 13px 13px">';
-      // Progress bar
-      h+='<div style="background:rgba(0,0,0,.3);border-radius:4px;height:4px;margin-bottom:12px"><div style="background:#ffaa33;height:4px;border-radius:4px;width:'+pct+'%;transition:width .3s"></div></div>';
-      // Mängel section
-      if(hasMaengel){
-        h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin:0 0 5px;display:flex;align-items:center;gap:6px">';
-        h+='MÄNGEL AUS PROTOKOLL <span style="color:#22cc44">'+mDone+'/'+maengel.length+'</span></div>';
-        for(var mj=0;mj<maengel.length;mj++){
-          var mChk=!!(rd2.maengelDone&&rd2.maengelDone[mj]);
-          h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,102,102,.1)">';
-          h+='<div data-rcl-mtog="'+num+'" data-rcl-midx="'+mj+'" style="width:20px;height:20px;min-width:20px;border-radius:4px;border:2px solid '+(mChk?'#22cc44':'rgba(255,102,102,.5)')+';background:'+(mChk?'#22cc44':'rgba(255,50,50,.08)')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center">';
-          h+=(mChk?'<span style="color:#0d1b2e;font-size:11px;font-weight:900">✓</span>':'');
-          h+='</div>';
-          h+='<div style="font-size:12px;color:'+(mChk?'rgba(255,255,255,.3)':'#ff9999')+';'+(mChk?'text-decoration:line-through;':'')+'">'+esc(maengel[mj])+'</div>';
-          h+='</div>';
-        }
-      }
-      // Standard checklist
-      var cats2={};var catOrd=[];
-      for(var ii=0;ii<ROOM_CL_ITEMS.length;ii++){
-        var it=ROOM_CL_ITEMS[ii];
-        if(!cats2[it.cat]){cats2[it.cat]=[];catOrd.push(it.cat);}
-        cats2[it.cat].push(it);
-      }
-      h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin:10px 0 5px">STANDARDWARTUNG <span style="color:#22cc44">'+iDone+'/'+ROOM_CL_ITEMS.length+'</span></div>';
-      for(var ci=0;ci<catOrd.length;ci++){
-        h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.25);margin:6px 0 3px">'+catOrd[ci]+'</div>';
-        var its2=cats2[catOrd[ci]];
-        for(var ij=0;ij<its2.length;ij++){
-          var it2=its2[ij];
-          var chk=!!(rd2.items&&rd2.items[it2.id]);
-          h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
-          h+='<div data-rcl-tog="'+num+'" data-rcl-id="'+it2.id+'" style="width:20px;height:20px;min-width:20px;border-radius:4px;border:2px solid '+(chk?'#22cc44':'rgba(255,255,255,.2)')+';background:'+(chk?'#22cc44':'transparent')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center">';
-          h+=(chk?'<span style="color:#0d1b2e;font-size:11px;font-weight:900">✓</span>':'');
-          h+='</div>';
-          h+='<div style="font-size:12px;color:'+(chk?'rgba(255,255,255,.3)':'rgba(255,255,255,.8)')+';'+(chk?'text-decoration:line-through;':'')+'">'+esc(it2.l)+'</div>';
-          h+='</div>';
-        }
-      }
-      // Notes
-      h+='<div style="margin-top:10px">';
-      h+='<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px">NOTIZEN</div>';
-      h+='<textarea data-rcl-note="'+num+'" rows="2" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:12px;padding:6px;font-family:inherit;resize:vertical;box-sizing:border-box"'+(isDone?' disabled':'')+'>'+(rd2.notes?esc(rd2.notes):'')+'</textarea>';
+      h+='<span style="font-size:11px;color:'+stCol+';font-weight:600">'+stLbl+' &#9654;</span>';
       h+='</div>';
-      // Final done button
-      if(canEdit&&!isDone){
-        h+='<button data-rcl-done="'+num+'" style="width:100%;padding:10px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px">✓ Wartung abschliessen</button>';
-      }
-      if(isDone){
-        h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;text-align:center">Abgeschlossen: '+esc(rd2.tDone||'')+'</div>';
-        if(u.dept==='admin')h+='<button data-rcl-reset="'+num+'" style="width:100%;padding:6px;border:1px solid #cc3333;border-radius:7px;background:#1a0a0a;color:#ff6666;font-size:11px;cursor:pointer;font-family:inherit;margin-top:6px">Reset</button>';
-      }
-      h+='</div></details>';
     }
     h+='</div>';
   }
   return h;
 }
+
+function getRoomCl(num){
+  if(!roomClData[num])roomClData[num]={status:'open',acceptedBy:null,tStart:null,tDone:null,items:{},notes:'',maengelDone:{}};
+  return roomClData[num];
+}
+function renderRoomDetail(num){
+  var u=eu();
+  var canEdit=(u.dept==='technik'||u.dept==='admin');
+  var rd=getRoomCl(num);
+  var maengel=ROOM_MAENGEL[num]||[];
+  var iDone=0; if(rd.items)for(var k in rd.items)if(rd.items[k])iDone++;
+  var mDone=0; if(rd.maengelDone)for(var mi=0;mi<maengel.length;mi++)if(rd.maengelDone[mi])mDone++;
+  var totalItems=ROOM_CL_ITEMS.length+maengel.length;
+  var totalDone=iDone+mDone;
+  var pct=totalItems>0?Math.round(totalDone/totalItems*100):0;
+  var isDone=rd.status==='done';
+  var h='<div id="rcl-detail" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1b2e;z-index:999;overflow-y:auto;padding:16px;box-sizing:border-box">';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
+  h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; Zurueck</button>';
+  h+='<span style="font-size:16px;font-weight:700;color:var(--gold)">Zimmer '+num+'</span>';
+  if(isDone) h+='<span style="font-size:11px;color:#22cc44;font-weight:600">&#10003; Fertig</span>';
+  h+='</div>';
+  h+='<div style="background:rgba(0,0,0,.3);border-radius:4px;height:4px;margin-bottom:8px"><div style="background:#ffaa33;height:4px;border-radius:4px;width:'+pct+'%"></div></div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px">'+totalDone+'/'+totalItems+' erledigt</div>';
+  if(maengel.length>0){
+    h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin-bottom:6px">MAENGEL ('+mDone+'/'+maengel.length+')</div>';
+    for(var mj=0;mj<maengel.length;mj++){
+      var mChk=!!(rd.maengelDone&&rd.maengelDone[mj]);
+      h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,102,102,.1)">';
+      h+='<div data-rcl-mtog="'+num+'" data-rcl-midx="'+mj+'" style="width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid '+(mChk?'#22cc44':'rgba(255,102,102,.5)')+';background:'+(mChk?'#22cc44':'transparent')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';display:flex;align-items:center;justify-content:center">';
+      if(mChk) h+='<span style="color:#0d1b2e;font-size:12px;pointer-events:none">&#10003;</span>';
+      h+='</div>';
+      h+='<div style="font-size:12px;color:'+(mChk?'rgba(255,255,255,.3)':'#ff9999')+';'+(mChk?'text-decoration:line-through;':'')+'">'+(maengel[mj]||'').replace(/</g,'&lt;')+'</div>';
+      h+='</div>';
+    }
+    h+='<div style="height:10px"></div>';
+  }
+  var cats={};var catOrd=[];
+  for(var ii=0;ii<ROOM_CL_ITEMS.length;ii++){
+    var it=ROOM_CL_ITEMS[ii];
+    if(!cats[it.cat]){cats[it.cat]=[];catOrd.push(it.cat);}
+    cats[it.cat].push(it);
+  }
+  h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">STANDARDWARTUNG ('+iDone+'/'+ROOM_CL_ITEMS.length+')</div>';
+  for(var ci=0;ci<catOrd.length;ci++){
+    h+='<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);margin:8px 0 4px;text-transform:uppercase">'+catOrd[ci]+'</div>';
+    var its=cats[catOrd[ci]];
+    for(var ij=0;ij<its.length;ij++){
+      var it2=its[ij];
+      var chk=!!(rd.items&&rd.items[it2.id]);
+      h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
+      h+='<div data-rcl-tog="'+num+'" data-rcl-id="'+it2.id+'" style="width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid '+(chk?'#22cc44':'rgba(255,255,255,.2)')+';background:'+(chk?'#22cc44':'transparent')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';display:flex;align-items:center;justify-content:center">';
+      if(chk) h+='<span style="color:#0d1b2e;font-size:12px;pointer-events:none">&#10003;</span>';
+      h+='</div>';
+      h+='<div style="font-size:12px;color:'+(chk?'rgba(255,255,255,.3)':'rgba(255,255,255,.85)')+';'+(chk?'text-decoration:line-through;':'')+'">'+(it2.l||'').replace(/</g,'&lt;')+'</div>';
+      h+='</div>';
+    }
+  }
+  h+='<div style="margin-top:14px">';
+  h+='<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px">NOTIZEN</div>';
+  h+='<textarea id="rcl-note-'+num+'" rows="3" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:12px;padding:8px;font-family:inherit;resize:vertical;box-sizing:border-box"'+(isDone?' disabled':'')+'>'+(rd.notes||'').replace(/</g,'&lt;')+'</textarea>';
+  h+='</div>';
+  if(canEdit&&!isDone){
+    h+='<button data-rcl-done="'+num+'" style="width:100%;padding:12px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px">&#10003; Wartung abschliessen</button>';
+  }
+  if(isDone&&u.dept==='admin'){
+    h+='<button data-rcl-reset="'+num+'" style="width:100%;padding:8px;border:1px solid #cc3333;border-radius:7px;background:#1a0a0a;color:#ff6666;font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px">Reset</button>';
+  }
+  h+='<div style="height:40px"></div></div>';
+  return h;
+}
+
+
+
+
+// ── Zimmerwartung Event Handler ──────────────────────────────
+document.addEventListener('click',function(e){
+  if(e.target&&e.target.id==='rcl-back'){
+    var det=document.getElementById('rcl-detail');
+    if(det)det.remove();
+    return;
+  }
+  var card=e.target.closest('[data-rcl-room]');
+  if(card){
+    var rnum=card.getAttribute('data-rcl-room');
+    var old=document.getElementById('rcl-detail');
+    if(old)old.remove();
+    document.body.insertAdjacentHTML('beforeend',renderRoomDetail(rnum));
+    return;
+  }
+  var t=e.target.closest('[data-rcl-tog],[data-rcl-mtog],[data-rcl-done],[data-rcl-reset]');
+  if(!t)return;
+  var tog=t.getAttribute('data-rcl-tog');
+  var mtog=t.getAttribute('data-rcl-mtog');
+  var done=t.getAttribute('data-rcl-done');
+  var reset=t.getAttribute('data-rcl-reset');
+  if(tog){
+    roomClToggle(tog,t.getAttribute('data-rcl-id'));
+    var det2=document.getElementById('rcl-detail');
+    if(det2){det2.remove();document.body.insertAdjacentHTML('beforeend',renderRoomDetail(tog));}
+  } else if(mtog){
+    roomClMaengelToggle(mtog,parseInt(t.getAttribute('data-rcl-midx')));
+    var det3=document.getElementById('rcl-detail');
+    if(det3){det3.remove();document.body.insertAdjacentHTML('beforeend',renderRoomDetail(mtog));}
+  } else if(done){
+    roomClDone(done);
+    var det4=document.getElementById('rcl-detail');
+    if(det4)det4.remove();
+    render();
+  } else if(reset){
+    roomClReset(reset);
+    var det5=document.getElementById('rcl-detail');
+    if(det5)det5.remove();
+    render();
+  }
+});
+document.addEventListener('change',function(e){
+  if(e.target&&e.target.id&&e.target.id.indexOf('rcl-note-')===0){
+    var nnum=e.target.id.replace('rcl-note-','');
+    roomClNote(nnum,e.target.value);
+  }
+});
+
+boot();
+
+
+
+
+
+
 
 
 </script>
