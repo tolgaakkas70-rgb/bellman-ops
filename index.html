@@ -360,6 +360,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 
 
 
+
+
+
+
+
+
 // ══════════════════════════════════════════════════════════════
 // BELLMAN OPS – Hotel Operations App
 // Version 8 – Clean rebuild
@@ -449,7 +455,7 @@ let hkF='all', rpF='all', hkQ='', rpQ='';
 let mbSel={};
 let noteId=null;
 let depNoteId=null;
-let showRF=false, rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',img:null};
+let showRF=false, rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',imgs:[]};
 let loginErr='';
 let addType='co';
 let staffMgmt=false, mbMgmt=false;
@@ -673,9 +679,9 @@ function submitRepair(){
   if(!rfData.loc.trim()){toast('⚠️ Zimmernummer oder Ort angeben');return;}
   if(!rfData.desc.trim()){toast('⚠️ Beschreibung angeben');return;}
   repairs.push({id:gid(),loc:rfData.loc.trim(),area:rfData.area||'',workType:rfData.workType||'',workSub:rfData.workSub||'',desc:rfData.desc.trim(),prio:rfData.prio,
-    by:(eu()&&eu().name)||'?',dept:DL[(eu()&&eu().dept)]||'',img:rfData.img||null,
+    by:(eu()&&eu().name)||'?',dept:DL[(eu()&&eu().dept)]||'',imgs:rfData.imgs||[],
     status:'rp-open',date:todS(),tCreated:nowT(),tAccepted:null,tDone:null,byAccepted:null,byDone:null,elapsedMin:0,tStart:null,matNote:''});
-  saveRepairs();rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',img:null};showRF=false;
+  saveRepairs();rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',imgs:[]};showRF=false;
   toast('🔧 Reparatur eingetragen');render();
 }
 function acceptRepair(id){const r=repairs.find(r=>r.id===id);if(!r)return;r.status='rp-progress';r.tAccepted=nowT();r.byAccepted=eu()?.name||'?';saveRepairs();toast('▶ Angenommen');render();}
@@ -781,7 +787,10 @@ function doRelease(id){
 function switchTab(t){tab=t;hkF='all';rpF='all';render();}
 function setPersona(name,dept){
   if(!name){persona=null;}
-  else{persona={name,dept,isAdmin:false};}
+  else{
+    persona={name,dept,isAdmin:false};
+    if(name==='Vasily'&&LANG!=='ru'){setLang('ru');}
+  }
   render();
 }
 window.closeLB=()=>{const l=document.getElementById('lb');if(l)l.classList.remove('open');};
@@ -944,7 +953,14 @@ function render(){
   if(showRF){
     const l=document.getElementById('rf-loc'),d=document.getElementById('rf-desc'),p=document.getElementById('rf-prio');
     if(l)l.value=rfData.loc;if(d)d.value=rfData.desc;if(p)p.value=rfData.prio;
-    if(rfData.img){const pv=document.getElementById('rf-prev');if(pv){pv.src=rfData.img;pv.style.display='block';}}
+    if(rfData.imgs&&rfData.imgs.length){
+    const pv=document.getElementById('rf-imgs');
+    if(pv){pv.innerHTML='';rfData.imgs.forEach(function(src,i){
+      var el=document.createElement('img');el.src=src;el.className='imgprev';
+      el.style.marginRight='6px';el.style.cursor='pointer';el.title='Tippen zum Entfernen';
+      el.onclick=function(){window.removeRepImg(i);};pv.appendChild(el);
+    });}
+  }
   }
 }
 
@@ -1057,7 +1073,7 @@ function renderMain(app){
     ${tab==='dashboard'?renderDashboardTab():''}
     ${tab==='roomcl'?renderRoomChecklistTab():''}
     <div class="sep"></div>
-    <button onclick="clearMe();screen='select';persona=null;rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',img:null};showRF=false;render()" style="width:100%;background:transparent;border:none;color:rgba(245,240,232,.5);font-size:13px;padding:14px 0;cursor:pointer;font-family:inherit;text-align:center">↩ Abmelden · ${esc(me.name)}</button>
+    <button onclick="clearMe();screen='select';persona=null;rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',imgs:[]};showRF=false;render()" style="width:100%;background:transparent;border:none;color:rgba(245,240,232,.5);font-size:13px;padding:14px 0;cursor:pointer;font-family:inherit;text-align:center">↩ Abmelden · ${esc(me.name)}</button>
   </div>`;
 }
 
@@ -1373,8 +1389,8 @@ function renderRepairTab(){
         <option value="low">🟢 Niedrig – diese Woche</option>
       </select></div>
     <div class="frow"><label class="flbl">Foto (optional)</label>
-      <label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;margin-right:6px" onclick="window.openCamera()">📷 Kamera</label><label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;background:var(--navy3)">Galerie<input type="file" accept="image/*" style="display:none" onchange="window.handleRepImg(this)"></label>
-      <img id="rf-prev" class="imgprev"></div>
+      <label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;margin-right:6px" onclick="window.openCamera()">📷 Kamera</label><label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;background:var(--navy3)">Galerie<input type="file" accept="image/*" multiple style="display:none" onchange="window.handleRepImg(this)"></label>
+      <div id="rf-imgs" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div></div>
     <div class="fbtns">
       <button class="bsubmit" onclick="submitRepair()">✓ Eintragen</button>
       <button class="bcancel" onclick="showRF=false;render()">Abbrechen</button>
@@ -1595,10 +1611,42 @@ window.saveDepNote=saveDepNote;
 window.appendDepNote=appendDepNote;
 window.setGreenOption=setGreenOption;
 window.handleRepImg=function(input){
-  const f=input.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');const max=800,sc=i.width>max?max/i.width:1;c.width=i.width*sc;c.height=i.height*sc;c.getContext('2d').drawImage(i,0,0,c.width,c.height);rfData.img=c.toDataURL('image/jpeg',.72);const pv=document.getElementById('rf-prev');if(pv){pv.src=rfData.img;pv.style.display='block';}};i.src=e.target.result;};
-  r.readAsDataURL(f);
+  var files=Array.from(input.files||[]);
+  if(!files.length)return;
+  if(!rfData.imgs)rfData.imgs=[];
+  files.forEach(function(f){
+    var r=new FileReader();
+    r.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var cv=document.createElement('canvas');
+        var max=800,sc=img.width>max?max/img.width:1;
+        cv.width=img.width*sc;cv.height=img.height*sc;
+        cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+        var dataUrl=cv.toDataURL('image/jpeg',.72);
+        rfData.imgs.push(dataUrl);
+        var pv=document.getElementById('rf-imgs');
+        if(pv){
+          var el=document.createElement('img');
+          el.src=dataUrl;el.className='imgprev';el.style.marginRight='6px';
+          pv.appendChild(el);
+        }
+      };
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(f);
+  });
+};
+window.removeRepImg=function(idx){
+  if(rfData.imgs)rfData.imgs.splice(idx,1);
+  var pv=document.getElementById('rf-imgs');
+  if(pv){pv.innerHTML='';rfData.imgs.forEach(function(src,i){
+    var el=document.createElement('img');
+    el.src=src;el.className='imgprev';el.style.marginRight='6px';el.style.cursor='pointer';
+    el.title='Tippen zum Entfernen';
+    el.onclick=function(){window.removeRepImg(i);};
+    pv.appendChild(el);
+  });}
 };
 
 // Triple-tap logo = admin login
@@ -2058,12 +2106,9 @@ function dashCard(title,stats,total){
 
 
 function openCamera(){
-  // Try to use camera input directly
   var inp=document.createElement('input');
-  inp.type='file';
-  inp.accept='image/*';
-  inp.capture='environment';
-  inp.onchange=function(){if(inp.files&&inp.files[0])window.handleRepImg(inp);};
+  inp.type='file';inp.accept='image/*';inp.capture='environment';
+  inp.onchange=function(){if(inp.files&&inp.files.length)window.handleRepImg(inp);};
   inp.click();
 }
 
@@ -2175,65 +2220,65 @@ var ROOM_MAENGEL={
 };
 
 var ROOM_CL_ITEMS=[
-  {id:'b01',cat:'Badezimmer',l:'Tuerzarge Bad: Aufquellen, Schimmel, Zustand'},
-  {id:'b02',cat:'Badezimmer',l:'Duschbatterie: Funktion, Dichtung, Kalk'},
-  {id:'b03',cat:'Badezimmer',l:'Duschbrause: Kalk, Durchfluss'},
-  {id:'b04',cat:'Badezimmer',l:'Duschschlauch: Zustand, Dichtheit'},
-  {id:'b05',cat:'Badezimmer',l:'Duschabtrennung: Dichtung, Silikon, Schienen'},
-  {id:'b06',cat:'Badezimmer',l:'Abfluss Dusche: Geruchsverschluss, Abdeckung'},
-  {id:'b07',cat:'Badezimmer',l:'Waschbecken: Wasserhahn, Dichtung'},
-  {id:'b08',cat:'Badezimmer',l:'WB-Unterschrank: Aufquellen, Zustand'},
-  {id:'b09',cat:'Badezimmer',l:'Waschbecken: Abfluss, Geruchsverschluss'},
-  {id:'b10',cat:'Badezimmer',l:'Toilette: Spuelung, Sitz, Dichtungen'},
-  {id:'b11',cat:'Badezimmer',l:'Spiegel: Befestigung, Zustand'},
-  {id:'b12',cat:'Badezimmer',l:'Handtuchhalter + Toilettenpapierhalter'},
-  {id:'b13',cat:'Badezimmer',l:'Lueftung Bad: Funktion, sauber'},
-  {id:'b14',cat:'Badezimmer',l:'Beleuchtung Bad: alle Lampen OK'},
-  {id:'b15',cat:'Badezimmer',l:'Steckdose Bad: Funktion, Sicherheit'},
-  {id:'b16',cat:'Badezimmer',l:'Foen: Funktion, Kabel, im Schrank'},
-  {id:'b17',cat:'Badezimmer',l:'Silikon: Dusche, Waschbecken - Zustand'},
-  {id:'b18',cat:'Badezimmer',l:'Fliesen: Risse, lose Fliesen, Fugen'},
-  {id:'k01',cat:'Kueche / Minibar',l:'Herdplatte: alle Platten funktionieren'},
-  {id:'k02',cat:'Kueche / Minibar',l:'Mikrowelle: Funktion, Drehscheibe'},
-  {id:'k03',cat:'Kueche / Minibar',l:'Kuehlschrank/Minibar: Kuehlleistung, Dichtung'},
-  {id:'k04',cat:'Kueche / Minibar',l:'Kuehlschrank: Tuer schliesst sauber'},
-  {id:'k05',cat:'Kueche / Minibar',l:'Waschbecken Kueche: Wasserhahn, Abfluss'},
-  {id:'k06',cat:'Kueche / Minibar',l:'Schraenke Kueche: Scharniere, Griffe'},
-  {id:'f01',cat:'Fenster und Jalousien',l:'Jalousie: Funktion, Motor, Knopf/Steuerung'},
-  {id:'f02',cat:'Fenster und Jalousien',l:'Vorhang/Gardine: Aufhaengung, Motor, Knopf'},
-  {id:'f03',cat:'Fenster und Jalousien',l:'Gardinenkabel: angeschlossen, keine offenen Enden'},
-  {id:'f04',cat:'Fenster und Jalousien',l:'Fenster: Dichtung, Schliessung, Griff'},
-  {id:'f05',cat:'Fenster und Jalousien',l:'Fassadenspalt: abgedichtet, kein Spalt'},
-  {id:'e01',cat:'Elektrik und Beleuchtung',l:'Alle Deckenlampen funktionieren'},
-  {id:'e02',cat:'Elektrik und Beleuchtung',l:'Nachttischlampen links und rechts OK'},
-  {id:'e03',cat:'Elektrik und Beleuchtung',l:'Alle Steckdosen funktionieren'},
-  {id:'e04',cat:'Elektrik und Beleuchtung',l:'USB-Ladepunkte funktionieren'},
-  {id:'e05',cat:'Elektrik und Beleuchtung',l:'SuitePad: Funktion, Laden'},
-  {id:'e06',cat:'Elektrik und Beleuchtung',l:'TV: Funktion, Fernbedienung'},
-  {id:'e07',cat:'Elektrik und Beleuchtung',l:'Lichtschalter alle funktionieren'},
-  {id:'e08',cat:'Elektrik und Beleuchtung',l:'Safe: Funktion, Batterie'},
-  {id:'e09',cat:'Elektrik und Beleuchtung',l:'Telefon: Funktion'},
-  {id:'e10',cat:'Elektrik und Beleuchtung',l:'Revisionsdeckel: vorhanden, geschlossen'},
-  {id:'m01',cat:'Moebel und Ausstattung',l:'Bett: Gestell, Beine, Stabilitaet'},
-  {id:'m02',cat:'Moebel und Ausstattung',l:'Matratze: Zustand, kein Durchhaengen'},
-  {id:'m03',cat:'Moebel und Ausstattung',l:'Kleiderschrank: Scharniere, Tueren, Griffe'},
-  {id:'m04',cat:'Moebel und Ausstattung',l:'Buegelbrett + Buegeleisen: vorhanden, OK'},
-  {id:'m05',cat:'Moebel und Ausstattung',l:'Nachttische: Stabilitaet, Schublade'},
-  {id:'m06',cat:'Moebel und Ausstattung',l:'Sitztisch + Sessel: Stabilitaet, Polster'},
-  {id:'m07',cat:'Moebel und Ausstattung',l:'Schreibtisch: Stabilitaet, Schubladen'},
-  {id:'m08',cat:'Moebel und Ausstattung',l:'Spiegel Zimmer: Befestigung'},
-  {id:'t01',cat:'Tuer und Schloss',l:'Zimmertuer: schliesst sauber, kein Schleifen'},
-  {id:'t02',cat:'Tuer und Schloss',l:'VingCard Schloss: Funktion, Reaktion'},
-  {id:'t03',cat:'Tuer und Schloss',l:'Tuerstopper + Sicherheitskette: OK'},
-  {id:'t04',cat:'Tuer und Schloss',l:'Badtuer: Schloss, Scharniere, Zustand'},
-  {id:'w01',cat:'Waende und Boden',l:'Waende: keine Flecken, Risse, Schimmel'},
-  {id:'w02',cat:'Waende und Boden',l:'Decke: keine Flecken, Wasserschaeden'},
-  {id:'w03',cat:'Waende und Boden',l:'Sockelleisten: befestigt, Zustand'},
-  {id:'w04',cat:'Waende und Boden',l:'Teppich: keine Risse, Flecken, lose Stellen'},
-  {id:'c01',cat:'Klimaanlage',l:'Klimaanlage: Kuehlen und Heizen OK'},
-  {id:'c02',cat:'Klimaanlage',l:'Filter gereinigt'},
-  {id:'c03',cat:'Klimaanlage',l:'Thermostat/Steuerung: Funktion'},
-  {id:'c04',cat:'Klimaanlage',l:'Lueftungsgitter: sauber, befestigt'}
+  {id:'b01',cat:'Badezimmer',catRu:'Ванная',l:'Tuerzarge Bad: Aufquellen, Schimmel, Zustand',r:'Дверная коробка ванной: набухание, плесень, состояние'},
+  {id:'b02',cat:'Badezimmer',catRu:'Ванная',l:'Duschbatterie: Funktion, Dichtung, Kalk',r:'Смеситель душа: работа, уплотнение, известковый налёт'},
+  {id:'b03',cat:'Badezimmer',catRu:'Ванная',l:'Duschbrause: Kalk, Durchfluss',r:'Лейка душа: налёт, напор воды'},
+  {id:'b04',cat:'Badezimmer',catRu:'Ванная',l:'Duschschlauch: Zustand, Dichtheit',r:'Шланг душа: состояние, герметичность'},
+  {id:'b05',cat:'Badezimmer',catRu:'Ванная',l:'Duschabtrennung: Dichtung, Silikon, Schienen',r:'Душевое ограждение: уплотнение, силикон, направляющие'},
+  {id:'b06',cat:'Badezimmer',catRu:'Ванная',l:'Abfluss Dusche: Geruchsverschluss, Abdeckung',r:'Слив душа: сифон, крышка'},
+  {id:'b07',cat:'Badezimmer',catRu:'Ванная',l:'Waschbecken: Wasserhahn, Dichtung',r:'Раковина: кран, уплотнение'},
+  {id:'b08',cat:'Badezimmer',catRu:'Ванная',l:'WB-Unterschrank: Aufquellen, Zustand',r:'Тумба под раковиной: набухание, состояние'},
+  {id:'b09',cat:'Badezimmer',catRu:'Ванная',l:'Waschbecken: Abfluss, Geruchsverschluss',r:'Раковина: слив, сифон'},
+  {id:'b10',cat:'Badezimmer',catRu:'Ванная',l:'Toilette: Spuelung, Sitz, Dichtungen',r:'Унитаз: смыв, сиденье, уплотнения'},
+  {id:'b11',cat:'Badezimmer',catRu:'Ванная',l:'Spiegel: Befestigung, Zustand',r:'Зеркало: крепление, состояние'},
+  {id:'b12',cat:'Badezimmer',catRu:'Ванная',l:'Handtuchhalter + Toilettenpapierhalter',r:'Держатель полотенец и туалетной бумаги'},
+  {id:'b13',cat:'Badezimmer',catRu:'Ванная',l:'Lueftung Bad: Funktion, sauber',r:'Вентиляция ванной: работа, чистота'},
+  {id:'b14',cat:'Badezimmer',catRu:'Ванная',l:'Beleuchtung Bad: alle Lampen OK',r:'Освещение ванной: все лампы работают'},
+  {id:'b15',cat:'Badezimmer',catRu:'Ванная',l:'Steckdose Bad: Funktion, Sicherheit',r:'Розетка в ванной: работа, безопасность'},
+  {id:'b16',cat:'Badezimmer',catRu:'Ванная',l:'Foen: Funktion, Kabel, im Schrank',r:'Фен: работа, кабель, в шкафу'},
+  {id:'b17',cat:'Badezimmer',catRu:'Ванная',l:'Silikon: Dusche, Waschbecken - Zustand',r:'Силикон: душ, раковина — состояние'},
+  {id:'b18',cat:'Badezimmer',catRu:'Ванная',l:'Fliesen: Risse, lose Fliesen, Fugen',r:'Плитка: трещины, отслоение, швы'},
+  {id:'k01',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Herdplatte: alle Platten funktionieren',r:'Плита: все конфорки работают'},
+  {id:'k02',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Mikrowelle: Funktion, Drehscheibe',r:'Микроволновка: работа, поддон'},
+  {id:'k03',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Kuehlschrank/Minibar: Kuehlleistung, Dichtung',r:'Холодильник/минибар: охлаждение, уплотнение'},
+  {id:'k04',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Kuehlschrank: Tuer schliesst sauber',r:'Холодильник: дверь закрывается плотно'},
+  {id:'k05',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Waschbecken Kueche: Wasserhahn, Abfluss',r:'Раковина кухни: кран, слив'},
+  {id:'k06',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Schraenke Kueche: Scharniere, Griffe',r:'Кухонные шкафы: петли, ручки'},
+  {id:'f01',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Jalousie: Funktion, Motor, Knopf/Steuerung',r:'Жалюзи: работа, мотор, кнопка/управление'},
+  {id:'f02',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Vorhang/Gardine: Aufhaengung, Motor, Knopf',r:'Штора/гардина: крепление, мотор, кнопка'},
+  {id:'f03',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Gardinenkabel: angeschlossen, keine offenen Enden',r:'Кабель гардины: подключён, нет открытых концов'},
+  {id:'f04',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Fenster: Dichtung, Schliessung, Griff',r:'Окно: уплотнение, закрывание, ручка'},
+  {id:'f05',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Fassadenspalt: abgedichtet, kein Spalt',r:'Фасадная щель: заделана, зазоров нет'},
+  {id:'e01',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Alle Deckenlampen funktionieren',r:'Все потолочные светильники работают'},
+  {id:'e02',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Nachttischlampen links und rechts OK',r:'Прикроватные лампы слева и справа работают'},
+  {id:'e03',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Alle Steckdosen funktionieren',r:'Все розетки работают'},
+  {id:'e04',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'USB-Ladepunkte funktionieren',r:'USB-разъёмы работают'},
+  {id:'e05',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'SuitePad: Funktion, Laden',r:'SuitePad: работа, зарядка'},
+  {id:'e06',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'TV: Funktion, Fernbedienung',r:'Телевизор: работа, пульт'},
+  {id:'e07',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Lichtschalter alle funktionieren',r:'Все выключатели работают'},
+  {id:'e08',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Safe: Funktion, Batterie',r:'Сейф: работа, батарея'},
+  {id:'e09',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Telefon: Funktion',r:'Телефон: работа'},
+  {id:'e10',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Revisionsdeckel: vorhanden, geschlossen',r:'Ревизионные крышки: на месте, закрыты'},
+  {id:'m01',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Bett: Gestell, Beine, Stabilitaet',r:'Кровать: рама, ножки, устойчивость'},
+  {id:'m02',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Matratze: Zustand, kein Durchhaengen',r:'Матрас: состояние, нет провисания'},
+  {id:'m03',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Kleiderschrank: Scharniere, Tueren, Griffe',r:'Шкаф: петли, дверцы, ручки'},
+  {id:'m04',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Buegelbrett + Buegeleisen: vorhanden, OK',r:'Гладильная доска и утюг: наличие, состояние'},
+  {id:'m05',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Nachttische: Stabilitaet, Schublade',r:'Тумбочки: устойчивость, ящик'},
+  {id:'m06',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Sitztisch + Sessel: Stabilitaet, Polster',r:'Столик и кресло: устойчивость, обивка'},
+  {id:'m07',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Schreibtisch: Stabilitaet, Schubladen',r:'Письменный стол: устойчивость, ящики'},
+  {id:'m08',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Spiegel Zimmer: Befestigung',r:'Зеркало в комнате: крепление'},
+  {id:'t01',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Zimmertuer: schliesst sauber, kein Schleifen',r:'Дверь номера: закрывается плотно, нет скрипа'},
+  {id:'t02',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'VingCard Schloss: Funktion, Reaktion',r:'Замок VingCard: работа, срабатывание'},
+  {id:'t03',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Tuerstopper + Sicherheitskette: OK',r:'Ограничитель двери и цепочка: OK'},
+  {id:'t04',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Badtuer: Schloss, Scharniere, Zustand',r:'Дверь ванной: замок, петли, состояние'},
+  {id:'w01',cat:'Waende und Boden',catRu:'Стены и пол',l:'Waende: keine Flecken, Risse, Schimmel',r:'Стены: нет пятен, трещин, плесени'},
+  {id:'w02',cat:'Waende und Boden',catRu:'Стены и пол',l:'Decke: keine Flecken, Wasserschaeden',r:'Потолок: нет пятен, следов воды'},
+  {id:'w03',cat:'Waende und Boden',catRu:'Стены и пол',l:'Sockelleisten: befestigt, Zustand',r:'Плинтусы: закреплены, состояние'},
+  {id:'w04',cat:'Waende und Boden',catRu:'Стены и пол',l:'Teppich: keine Risse, Flecken, lose Stellen',r:'Ковёр: нет порывов, пятен, отслоений'},
+  {id:'c01',cat:'Klimaanlage',catRu:'Кондиционер',l:'Klimaanlage: Kuehlen und Heizen OK',r:'Кондиционер: охлаждение и обогрев работают'},
+  {id:'c02',cat:'Klimaanlage',catRu:'Кондиционер',l:'Filter gereinigt',r:'Фильтр очищен'},
+  {id:'c03',cat:'Klimaanlage',catRu:'Кондиционер',l:'Thermostat/Steuerung: Funktion',r:'Термостат/управление: работа'},
+  {id:'c04',cat:'Klimaanlage',catRu:'Кондиционер',l:'Lueftungsgitter: sauber, befestigt',r:'Вентиляционная решётка: чистая, закреплена'}
 ];
 function roomClAccept(num){
   var d=getRoomCl(num);
@@ -2270,7 +2315,7 @@ function roomClNote(num,val){
 }
 
 function renderRoomChecklistTab(){
-  var u=eu();
+  var u=eu()||{dept:'',name:'',isAdmin:false};
   var floors=[[101,118],[201,219],[301,318],[401,417],[501,517],[601,609]];
   var etNames=['1. OG','2. OG','3. OG','4. OG','5. OG','6. OG'];
   var total=0,done=0,inProg=0;
@@ -2324,7 +2369,7 @@ function getRoomCl(num){
   return roomClData[num];
 }
 function renderRoomDetail(num){
-  var u=eu();
+  var u=eu()||{dept:'',name:'',isAdmin:false};
   var canEdit=(u.dept==='technik'||u.dept==='admin');
   var rd=getRoomCl(num);
   var maengel=ROOM_MAENGEL[num]||[];
@@ -2336,14 +2381,14 @@ function renderRoomDetail(num){
   var isDone=rd.status==='done';
   var h='<div id="rcl-detail" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1b2e;z-index:999;overflow-y:auto;padding:16px;box-sizing:border-box">';
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
-  h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; Zurueck</button>';
+  h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; '+(isRu?'Назад':'Zurueck')+'</button>';
   h+='<span style="font-size:16px;font-weight:700;color:var(--gold)">Zimmer '+num+'</span>';
   if(isDone) h+='<span style="font-size:11px;color:#22cc44;font-weight:600">&#10003; Fertig</span>';
   h+='</div>';
   h+='<div style="background:rgba(0,0,0,.3);border-radius:4px;height:4px;margin-bottom:8px"><div style="background:#ffaa33;height:4px;border-radius:4px;width:'+pct+'%"></div></div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px">'+totalDone+'/'+totalItems+' erledigt</div>';
   if(maengel.length>0){
-    h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin-bottom:6px">MAENGEL ('+mDone+'/'+maengel.length+')</div>';
+    h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin-bottom:6px">'+(isRu?'НЕИСПРАВНОСТИ':'MAENGEL')+' ('+mDone+'/'+maengel.length+')</div>';
     for(var mj=0;mj<maengel.length;mj++){
       var mChk=!!(rd.maengelDone&&rd.maengelDone[mj]);
       h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,102,102,.1)">';
@@ -2355,24 +2400,27 @@ function renderRoomDetail(num){
     }
     h+='<div style="height:10px"></div>';
   }
+  var isRu=(LANG==='ru');
   var cats={};var catOrd=[];
   for(var ii=0;ii<ROOM_CL_ITEMS.length;ii++){
     var it=ROOM_CL_ITEMS[ii];
-    if(!cats[it.cat]){cats[it.cat]=[];catOrd.push(it.cat);}
-    cats[it.cat].push(it);
+    var cKey=isRu?(it.catRu||it.cat):it.cat;
+    if(!cats[cKey]){cats[cKey]=[];catOrd.push(cKey);}
+    cats[cKey].push(it);
   }
-  h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">STANDARDWARTUNG ('+iDone+'/'+ROOM_CL_ITEMS.length+')</div>';
+  h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">'+(isRu?'СТАНДАРТНАЯ ПРОВЕРКА':'STANDARDWARTUNG')+' ('+iDone+'/'+ROOM_CL_ITEMS.length+')</div>';
   for(var ci=0;ci<catOrd.length;ci++){
     h+='<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);margin:8px 0 4px;text-transform:uppercase">'+catOrd[ci]+'</div>';
     var its=cats[catOrd[ci]];
     for(var ij=0;ij<its.length;ij++){
       var it2=its[ij];
       var chk=!!(rd.items&&rd.items[it2.id]);
+      var lbl=isRu?(it2.r||it2.l):it2.l;
       h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
       h+='<div data-rcl-tog="'+num+'" data-rcl-id="'+it2.id+'" style="width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid '+(chk?'#22cc44':'rgba(255,255,255,.2)')+';background:'+(chk?'#22cc44':'transparent')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';display:flex;align-items:center;justify-content:center">';
       if(chk) h+='<span style="color:#0d1b2e;font-size:12px;pointer-events:none">&#10003;</span>';
       h+='</div>';
-      h+='<div style="font-size:12px;color:'+(chk?'rgba(255,255,255,.3)':'rgba(255,255,255,.85)')+';'+(chk?'text-decoration:line-through;':'')+'">'+(it2.l||'').replace(/</g,'&lt;')+'</div>';
+      h+='<div style="font-size:12px;color:'+(chk?'rgba(255,255,255,.3)':'rgba(255,255,255,.85)')+';'+(chk?'text-decoration:line-through;':'')+'">'+(lbl||'').replace(/</g,'&lt;')+'</div>';
       h+='</div>';
     }
   }
@@ -2381,7 +2429,7 @@ function renderRoomDetail(num){
   h+='<textarea id="rcl-note-'+num+'" rows="3" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:12px;padding:8px;font-family:inherit;resize:vertical;box-sizing:border-box"'+(isDone?' disabled':'')+'>'+(rd.notes||'').replace(/</g,'&lt;')+'</textarea>';
   h+='</div>';
   if(canEdit&&!isDone){
-    h+='<button data-rcl-done="'+num+'" style="width:100%;padding:12px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px">&#10003; Wartung abschliessen</button>';
+    h+='<button data-rcl-done="'+num+'" style="width:100%;padding:12px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px">&#10003; '+(isRu?'Завершить':'Wartung abschliessen')+'</button>';
   }
   if(isDone&&u.dept==='admin'){
     h+='<button data-rcl-reset="'+num+'" style="width:100%;padding:8px;border:1px solid #cc3333;border-radius:7px;background:#1a0a0a;color:#ff6666;font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px">Reset</button>';
@@ -2442,6 +2490,12 @@ document.addEventListener('change',function(e){
 });
 
 boot();
+
+
+
+
+
+
 
 
 
