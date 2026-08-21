@@ -375,6 +375,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 
 
 
+
 // ══════════════════════════════════════════════════════════════
 // BELLMAN OPS – Hotel Operations App
 // Version 8 – Clean rebuild
@@ -2372,6 +2373,61 @@ function roomClNote(num,val){
 }
 
 
+
+// ── Custom Confirm/Prompt Modals (prompt()/confirm() unreliable in installed PWA) ──
+function appConfirm(msg,onYes){
+  var old=document.getElementById('app-modal');if(old)old.remove();
+  var h='<div id="app-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px">';
+  h+='<div style="background:var(--navy2);border-radius:14px;padding:20px;max-width:320px;width:100%">';
+  h+='<div style="font-size:14px;color:var(--white);margin-bottom:16px">'+esc(msg)+'</div>';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button id="app-modal-yes" style="flex:1;padding:11px;border:none;border-radius:8px;background:#cc3333;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Ja, l\u00f6schen</button>';
+  h+='<button id="app-modal-no" style="flex:1;padding:11px;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:var(--white);font-size:13px;cursor:pointer;font-family:inherit">Abbrechen</button>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+  document.getElementById('app-modal-yes').onclick=function(){var m=document.getElementById('app-modal');if(m)m.remove();onYes();};
+  document.getElementById('app-modal-no').onclick=function(){var m=document.getElementById('app-modal');if(m)m.remove();};
+}
+function appPrompt(msg,defVal,onSubmit){
+  var old=document.getElementById('app-modal');if(old)old.remove();
+  var h='<div id="app-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px">';
+  h+='<div style="background:var(--navy2);border-radius:14px;padding:20px;max-width:340px;width:100%">';
+  h+='<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:8px">'+esc(msg)+'</div>';
+  h+='<input id="app-modal-input" value="'+esc(defVal||'')+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;color:var(--white);font-size:14px;font-family:inherit;margin-bottom:14px">';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button id="app-modal-ok" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--gold);color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">OK</button>';
+  h+='<button id="app-modal-cancel" style="flex:1;padding:11px;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:var(--white);font-size:13px;cursor:pointer;font-family:inherit">Abbrechen</button>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+  var inp=document.getElementById('app-modal-input');
+  inp.focus();inp.select();
+  document.getElementById('app-modal-ok').onclick=function(){var v=inp.value;var m=document.getElementById('app-modal');if(m)m.remove();onSubmit(v);};
+  document.getElementById('app-modal-cancel').onclick=function(){var m=document.getElementById('app-modal');if(m)m.remove();};
+  inp.onkeydown=function(e){if(e.key==='Enter'){document.getElementById('app-modal-ok').click();}};
+}
+function appPrompt2(msg1,def1,msg2,def2,onSubmit){
+  var old=document.getElementById('app-modal');if(old)old.remove();
+  var h='<div id="app-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px">';
+  h+='<div style="background:var(--navy2);border-radius:14px;padding:20px;max-width:340px;width:100%">';
+  h+='<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:6px">'+esc(msg1)+'</div>';
+  h+='<input id="app-modal-input1" value="'+esc(def1||'')+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;color:var(--white);font-size:14px;font-family:inherit;margin-bottom:10px">';
+  h+='<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:6px">'+esc(msg2)+'</div>';
+  h+='<input id="app-modal-input2" value="'+esc(def2||'')+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;color:var(--white);font-size:14px;font-family:inherit;margin-bottom:14px">';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button id="app-modal-ok" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--gold);color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Speichern</button>';
+  h+='<button id="app-modal-cancel" style="flex:1;padding:11px;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:var(--white);font-size:13px;cursor:pointer;font-family:inherit">Abbrechen</button>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+  document.getElementById('app-modal-input1').focus();
+  document.getElementById('app-modal-ok').onclick=function(){
+    var v1=document.getElementById('app-modal-input1').value;
+    var v2=document.getElementById('app-modal-input2').value;
+    var m=document.getElementById('app-modal');if(m)m.remove();
+    onSubmit(v1,v2);
+  };
+  document.getElementById('app-modal-cancel').onclick=function(){var m=document.getElementById('app-modal');if(m)m.remove();};
+}
+
 // ── ADMIN: LISTEN VERWALTEN ──────────────────────────────────
 var listsSubTab='cl';
 var listsEditCat={cl:'',room:'',arb:''};
@@ -2487,19 +2543,19 @@ function addClItem(){
   saveClItems();render();toast('Punkt hinzugefügt');
 }
 function deleteClItem(id){
-  if(!confirm('Diesen Punkt wirklich löschen?'))return;
-  CL_ITEMS=CL_ITEMS.filter(function(it){return it.id!==id;});
-  saveClItems();render();toast('Gelöscht');
+  appConfirm('Diesen Punkt wirklich löschen?',function(){
+    CL_ITEMS=CL_ITEMS.filter(function(it){return it.id!==id;});
+    saveClItems();render();toast('Gelöscht');
+  });
 }
 function editClItem(id){
   var it=CL_ITEMS.find(function(x){return x.id===id;});
   if(!it)return;
-  var newText=prompt('Text bearbeiten:',it.l);
-  if(newText===null)return;
-  var newCat=prompt('Kategorie:',it.cat);
-  if(newCat===null)return;
-  it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
-  saveClItems();render();toast('Aktualisiert');
+  appPrompt2('Text:',it.l,'Kategorie:',it.cat,function(newText,newCat){
+    if(!newText.trim())return;
+    it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
+    saveClItems();render();toast('Aktualisiert');
+  });
 }
 
 // ── ROOM_CL_ITEMS Actions ──────────────────────────────────
@@ -2513,19 +2569,19 @@ function addRoomItem(){
   saveRoomClItems();render();toast('Punkt hinzugefügt');
 }
 function deleteRoomItem(id){
-  if(!confirm('Diesen Punkt wirklich löschen?'))return;
-  ROOM_CL_ITEMS=ROOM_CL_ITEMS.filter(function(it){return it.id!==id;});
-  saveRoomClItems();render();toast('Gelöscht');
+  appConfirm('Diesen Punkt wirklich löschen?',function(){
+    ROOM_CL_ITEMS=ROOM_CL_ITEMS.filter(function(it){return it.id!==id;});
+    saveRoomClItems();render();toast('Gelöscht');
+  });
 }
 function editRoomItem(id){
   var it=ROOM_CL_ITEMS.find(function(x){return x.id===id;});
   if(!it)return;
-  var newText=prompt('Text bearbeiten:',it.l);
-  if(newText===null)return;
-  var newCat=prompt('Kategorie:',it.cat);
-  if(newCat===null)return;
-  it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
-  saveRoomClItems();render();toast('Aktualisiert');
+  appPrompt2('Text:',it.l,'Kategorie:',it.cat,function(newText,newCat){
+    if(!newText.trim())return;
+    it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
+    saveRoomClItems();render();toast('Aktualisiert');
+  });
 }
 
 // ── ARBEITSARTEN Actions ────────────────────────────────────
@@ -2536,9 +2592,10 @@ function addArbCat(name){
   saveArbeitsarten();render();toast('Kategorie hinzugefügt');
 }
 function deleteArbCat(cat){
-  if(!confirm('Kategorie "'+cat+'" mit allen Punkten löschen?'))return;
-  delete ARBEITSARTEN[cat];
-  saveArbeitsarten();render();toast('Gelöscht');
+  appConfirm('Kategorie "'+cat+'" mit allen Punkten löschen?',function(){
+    delete ARBEITSARTEN[cat];
+    saveArbeitsarten();render();toast('Gelöscht');
+  });
 }
 function addArbItem(cat,text){
   text=(text||'').trim();
@@ -2548,16 +2605,18 @@ function addArbItem(cat,text){
   saveArbeitsarten();render();toast('Hinzugefügt');
 }
 function deleteArbItem(cat,idx){
-  if(!confirm('Diesen Punkt löschen?'))return;
-  ARBEITSARTEN[cat].splice(idx,1);
-  saveArbeitsarten();render();toast('Gelöscht');
+  appConfirm('Diesen Punkt löschen?',function(){
+    ARBEITSARTEN[cat].splice(idx,1);
+    saveArbeitsarten();render();toast('Gelöscht');
+  });
 }
 function editArbItem(cat,idx){
   var oldVal=ARBEITSARTEN[cat][idx];
-  var newVal=prompt('Text bearbeiten:',oldVal);
-  if(newVal===null||!newVal.trim())return;
-  ARBEITSARTEN[cat][idx]=newVal.trim();
-  saveArbeitsarten();render();toast('Aktualisiert');
+  appPrompt('Text bearbeiten:',oldVal,function(newVal){
+    if(!newVal.trim())return;
+    ARBEITSARTEN[cat][idx]=newVal.trim();
+    saveArbeitsarten();render();toast('Aktualisiert');
+  });
 }
 
 function renderRoomChecklistTab(){
@@ -2745,6 +2804,7 @@ document.addEventListener('change',function(e){
 });
 
 boot();
+
 
 
 
