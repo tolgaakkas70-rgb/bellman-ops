@@ -376,6 +376,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 
 
 
+
+
+
+
+
+
+
 // ══════════════════════════════════════════════════════════════
 // BELLMAN OPS – Hotel Operations App
 // Version 8 – Clean rebuild
@@ -1383,48 +1390,48 @@ function renderRoomCard(r){
 
 // ─── REPAIR TAB ───────────────────────────────────────────────
 function renderRepairTab(){
-  const R=(LANG==='ru');
+  const R=(LANG==='ru');const E=(LANG==='en');function TT(de,en){return R?arguments[2]:E?en:de;}
   const list=repList();
   const form=showRF?`
   <div class="repform">
-    <h3>${R?'\ud83d\udd27 \u041d\u043e\u0432\u044b\u0439 \u0440\u0435\u043c\u043e\u043d\u0442':'\ud83d\udd27 Neue Reparatur'}</h3>
-    <div class="frow"><label class="flbl">${R?'\u041c\u0435\u0441\u0442\u043e / \u041d\u043e\u043c\u0435\u0440':'Ort / Zimmer'}</label>
+    <h3>${R?'\ud83d\udd27 \u041d\u043e\u0432\u044b\u0439 \u0440\u0435\u043c\u043e\u043d\u0442':E?'\ud83d\udd27 New Repair':'\ud83d\udd27 Neue Reparatur'}</h3>
+    <div class="frow"><label class="flbl">${R?'\u041c\u0435\u0441\u0442\u043e / \u041d\u043e\u043c\u0435\u0440':E?'Location / Room':'Ort / Zimmer'}</label>
       ${buildOrtSelect(rfData.loc||"")}
     </div>
-    <div class="frow"><label class="flbl">${R?'\u0417\u043e\u043d\u0430':'Bereich'}</label>
-      <select onchange="rfData.area=this.value" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">${R?'\u0417\u043e\u043d\u0430 (\u043e\u043f\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e)...':'Bereich (optional)...'}</option>${ZIMMERBEREICHE.map(z=>'<option value="'+z+'"'+(rfData.area===z?' selected':'')+'>'+z+'</option>').join("")}</select>
+    <div class="frow"><label class="flbl">${R?'\u0417\u043e\u043d\u0430':E?'Area':'Bereich'}</label>
+      <select onchange="rfData.area=this.value" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">${R?'\u0417\u043e\u043d\u0430 (\u043e\u043f\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e)...':E?'Area (optional)...':'Bereich (optional)...'}</option>${ZIMMERBEREICHE.map(z=>'<option value="'+z+'"'+(rfData.area===z?' selected':'')+'>'+z+'</option>').join("")}</select>
     </div>
-    <div class="frow"><label class="flbl">${R?'\u0412\u0438\u0434 \u0440\u0430\u0431\u043e\u0442\u044b':'Art der Arbeit'}</label>
-      <select onchange="rfData.workType=this.value;rfData.workSub='';render()" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">${R?'\u0412\u0438\u0434 \u0440\u0430\u0431\u043e\u0442\u044b...':'Arbeitsart...'}</option>${Object.keys(ARBEITSARTEN).map(k=>'<option value="'+k+'"'+(rfData.workType===k?' selected':'')+'>'+k+'</option>').join("")}</select>
+    <div class="frow"><label class="flbl">${R?'\u0412\u0438\u0434 \u0440\u0430\u0431\u043e\u0442\u044b':E?'Type of work':'Art der Arbeit'}</label>
+      <select onchange="rfData.workType=this.value;rfData.workSub='';render()" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">${R?'\u0412\u0438\u0434 \u0440\u0430\u0431\u043e\u0442\u044b...':E?'Work type...':'Arbeitsart...'}</option>${Object.keys(ARBEITSARTEN).map(k=>'<option value="'+k+'"'+(rfData.workType===k?' selected':'')+'>'+k+'</option>').join("")}</select>
     </div>
-    ${rfData.workType?'<div class="frow"><label class="flbl">'+(R?'\u0422\u0438\u043f':'Typ')+'</label><select onchange="rfData.workSub=this.value" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">'+(R?'\u0412\u044b\u0431\u0440\u0430\u0442\u044c...':'Auswaehlen...')+'</option>'+ARBEITSARTEN[rfData.workType].map(s=>'<option value="'+s+'"'+(rfData.workSub===s?' selected':'')+'>'+s+'</option>').join("")+'</select></div>':''}
+    ${rfData.workType?'<div class="frow"><label class="flbl">'+(R?'\u0422\u0438\u043f':E?'Type':'Typ')+'</label><select onchange="rfData.workSub=this.value" style="width:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 12px;color:var(--white);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px"><option value="">'+(R?'\u0412\u044b\u0431\u0440\u0430\u0442\u044c...':E?'Select...':'Auswaehlen...')+'</option>'+ARBEITSARTEN[rfData.workType].map(s=>'<option value="'+s+'"'+(rfData.workSub===s?' selected':'')+'>'+s+'</option>').join("")+'</select></div>':''}
     <div class="frow" style="display:none"><label>x</div>
-    <div class="frow"><label class="flbl">${R?'\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435':'Beschreibung'}</label>
-      <textarea class="ftxt" id="rf-desc" placeholder="${R?'\u0427\u0442\u043e \u0441\u043b\u043e\u043c\u0430\u043d\u043e?':'Was ist kaputt?'}" oninput="rfData.desc=this.value"></textarea></div>
-    <div class="frow"><label class="flbl">${R?'\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442':'Priorit\u00e4t'}</label>
+    <div class="frow"><label class="flbl">${R?'\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435':E?'Description':'Beschreibung'}</label>
+      <textarea class="ftxt" id="rf-desc" placeholder="${R?'\u0427\u0442\u043e \u0441\u043b\u043e\u043c\u0430\u043d\u043e?':E?'What is broken?':'Was ist kaputt?'}" oninput="rfData.desc=this.value"></textarea></div>
+    <div class="frow"><label class="flbl">${R?'\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442':E?'Priority':'Priorit\u00e4t'}</label>
       <select class="fsel" id="rf-prio" onchange="rfData.prio=this.value">
-        <option value="high">${R?'\ud83d\udd34 \u0412\u044b\u0441\u043e\u043a\u0438\u0439 \u2013 \u0441\u0440\u043e\u0447\u043d\u043e':'\ud83d\udd34 Hoch \u2013 sofort'}</option>
-        <option value="medium" selected>${R?'\ud83d\udfe1 \u0421\u0440\u0435\u0434\u043d\u0438\u0439 \u2013 \u0441\u0435\u0433\u043e\u0434\u043d\u044f':'\ud83d\udfe1 Mittel \u2013 heute'}</option>
-        <option value="low">${R?'\ud83d\udfe2 \u041d\u0438\u0437\u043a\u0438\u0439 \u2013 \u043d\u0430 \u044d\u0442\u043e\u0439 \u043d\u0435\u0434\u0435\u043b\u0435':'\ud83d\udfe2 Niedrig \u2013 diese Woche'}</option>
+        <option value="high">${R?'\ud83d\udd34 \u0412\u044b\u0441\u043e\u043a\u0438\u0439 \u2013 \u0441\u0440\u043e\u0447\u043d\u043e':E?'\ud83d\udd34 High \u2013 immediate':'\ud83d\udd34 Hoch \u2013 sofort'}</option>
+        <option value="medium" selected>${R?'\ud83d\udfe1 \u0421\u0440\u0435\u0434\u043d\u0438\u0439 \u2013 \u0441\u0435\u0433\u043e\u0434\u043d\u044f':E?'\ud83d\udfe1 Medium \u2013 today':'\ud83d\udfe1 Mittel \u2013 heute'}</option>
+        <option value="low">${R?'\ud83d\udfe2 \u041d\u0438\u0437\u043a\u0438\u0439 \u2013 \u043d\u0430 \u044d\u0442\u043e\u0439 \u043d\u0435\u0434\u0435\u043b\u0435':E?'\ud83d\udfe2 Low \u2013 this week':'\ud83d\udfe2 Niedrig \u2013 diese Woche'}</option>
       </select></div>
-    <div class="frow"><label class="flbl">${R?'\u0424\u043e\u0442\u043e (\u043e\u043f\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e)':'Foto (optional)'}</label>
-      <label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;margin-right:6px" onclick="window.openCamera()">${R?'\ud83d\udcf7 \u041a\u0430\u043c\u0435\u0440\u0430':'\ud83d\udcf7 Kamera'}</label><label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;background:var(--navy3)">${R?'\u0413\u0430\u043b\u0435\u0440\u0435\u044f':'Galerie'}<input type="file" accept="image/*" multiple style="display:none" onchange="window.handleRepImg(this)"></label>
+    <div class="frow"><label class="flbl">${R?'\u0424\u043e\u0442\u043e (\u043e\u043f\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e)':E?'Photo (optional)':'Foto (optional)'}</label>
+      <label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;margin-right:6px" onclick="window.openCamera()">${R?'\ud83d\udcf7 \u041a\u0430\u043c\u0435\u0440\u0430':E?'\ud83d\udcf7 Camera':'\ud83d\udcf7 Kamera'}</label><label class="btn" style="text-align:center;cursor:pointer;padding:10px;display:inline-block;background:var(--navy3)">${R?'\u0413\u0430\u043b\u0435\u0440\u0435\u044f':E?'Gallery':'Galerie'}<input type="file" accept="image/*" multiple style="display:none" onchange="window.handleRepImg(this)"></label>
       <div id="rf-imgs" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div></div>
     <div class="fbtns">
-      <button class="bsubmit" onclick="submitRepair()">${R?'\u2713 \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c':'\u2713 Eintragen'}</button>
-      <button class="bcancel" onclick="showRF=false;render()">${R?'\u041e\u0442\u043c\u0435\u043d\u0430':'Abbrechen'}</button>
+      <button class="bsubmit" onclick="submitRepair()">${R?'\u2713 \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c':E?'\u2713 Submit':'\u2713 Eintragen'}</button>
+      <button class="bcancel" onclick="showRF=false;render()">${R?'\u041e\u0442\u043c\u0435\u043d\u0430':E?'Cancel':'Abbrechen'}</button>
     </div>
   </div>`:'';
 
-  const stLbl=R?{'rp-open':'\u041e\u0442\u043a\u0440\u044b\u0442\u043e','rp-progress':'\u0412 \u0440\u0430\u0431\u043e\u0442\u0435','rp-parked':'\u041e\u0442\u043b\u043e\u0436\u0435\u043d\u043e','rp-done':'\u0413\u043e\u0442\u043e\u0432\u043e'}:{'rp-open':'Offen','rp-progress':'In Bearbeitung','rp-parked':'Geparkt','rp-done':'Erledigt'};
+  const stLbl=R?{'rp-open':'\u041e\u0442\u043a\u0440\u044b\u0442\u043e','rp-progress':'\u0412 \u0440\u0430\u0431\u043e\u0442\u0435','rp-parked':'\u041e\u0442\u043b\u043e\u0436\u0435\u043d\u043e','rp-done':'\u0413\u043e\u0442\u043e\u0432\u043e'}:E?{'rp-open':'Open','rp-progress':'In Progress','rp-parked':'Parked','rp-done':'Done'}:{'rp-open':'Offen','rp-progress':'In Bearbeitung','rp-parked':'Geparkt','rp-done':'Erledigt'};
 
-  const cards=list.length===0?`<div class="empty"><div class="ei">\ud83d\udd27</div><p>${R?'\u041d\u0435\u0442 \u0440\u0435\u043c\u043e\u043d\u0442\u043e\u0432':'Keine Reparaturen'}</p></div>`:
+  const cards=list.length===0?`<div class="empty"><div class="ei">\ud83d\udd27</div><p>${R?'\u041d\u0435\u0442 \u0440\u0435\u043c\u043e\u043d\u0442\u043e\u0432':E?'No repairs':'Keine Reparaturen'}</p></div>`:
     list.map(r=>{
       const canA=canAct('rep_accept'),canD=canAct('rep_done');
-      const acts=`${canA&&r.status==='rp-open'?`<button class="btn btn-rprog" onclick="acceptRepairTimed('${r.id}')">${R?'\u041f\u0440\u0438\u043d\u044f\u0442\u044c':'Annehmen'}</button>`:''}
-        ${canA&&r.status==='rp-parked'?`<button class="btn btn-rprog" onclick="resumeRepair('${r.id}')">${R?'\u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c':'Fortsetzen'}</button>`:''}
-        ${canD&&r.status==='rp-progress'?`<button class="btn btn-rdone" onclick="doneRepairTimed('${r.id}')">${R?'\u0413\u043e\u0442\u043e\u0432\u043e':'Erledigt'}</button>`:''}
-        ${canD&&r.status==='rp-progress'?`<button class="btn" style="background:var(--navy3);border:1px solid rgba(255,255,255,.2)" onclick="parkRepair('${r.id}')">${R?'\u041e\u0442\u043b\u043e\u0436\u0438\u0442\u044c':'Parken'}</button>`:''}
+      const acts=`${canA&&r.status==='rp-open'?`<button class="btn btn-rprog" onclick="acceptRepairTimed('${r.id}')">${R?'\u041f\u0440\u0438\u043d\u044f\u0442\u044c':E?'Accept':'Annehmen'}</button>`:''}
+        ${canA&&r.status==='rp-parked'?`<button class="btn btn-rprog" onclick="resumeRepair('${r.id}')">${R?'\u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c':E?'Resume':'Fortsetzen'}</button>`:''}
+        ${canD&&r.status==='rp-progress'?`<button class="btn btn-rdone" onclick="doneRepairTimed('${r.id}')">${R?'\u0413\u043e\u0442\u043e\u0432\u043e':E?'Done':'Erledigt'}</button>`:''}
+        ${canD&&r.status==='rp-progress'?`<button class="btn" style="background:var(--navy3);border:1px solid rgba(255,255,255,.2)" onclick="parkRepair('${r.id}')">${R?'\u041e\u0442\u043b\u043e\u0436\u0438\u0442\u044c':E?'Park':'Parken'}</button>`:''}
         ${me&&me.isAdmin&&!persona?`<button class="btn btn-del" style="flex:0;min-width:auto;padding:8px 10px" onclick="delRepair('${r.id}')">Del</button>`:''}`;
       const imgs=(r.imgs&&r.imgs.length?r.imgs:(r.img?[r.img]:[]));
       return`<div class="repc ${r.status}">
@@ -1434,8 +1441,8 @@ function renderRepairTab(){
         </div>
         <div class="repdesc">${r.workType?`<span style="font-size:11px;background:var(--gdim);color:var(--gold);padding:1px 6px;border-radius:3px;margin-right:4px">${esc(r.workType)}${r.workSub?' - '+esc(r.workSub):''}</span>`:''} ${r.area?`<span style="font-size:11px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);padding:1px 6px;border-radius:3px">${esc(r.area)}</span>`:''}<br>${esc(r.desc)}</div>
         ${r.elapsedMin||r.tStart?`<div style="font-size:11px;color:${r.status==='rp-done'?'#22cc44':'var(--ora)'};margin-top:2px">${rpTime((r.elapsedMin||0)+(r.tStart?Math.round((Date.now()-r.tStart)/60000):0))}</div>`:''}
-        ${r.matNote?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${R?'\u041c\u0430\u0442\u0435\u0440\u0438\u0430\u043b':'Mat'}: ${esc(r.matNote)}</div>`:''}
-        ${canD&&(r.status==='rp-progress'||r.status==='rp-parked')?`<textarea onchange="saveMatNote('${r.id}',this.value)" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:6px;color:var(--white);font-size:12px;font-family:inherit;resize:none;height:48px;outline:none;margin-top:5px" placeholder="${R?'\u041c\u0430\u0442\u0435\u0440\u0438\u0430\u043b...':'Material...'}">${esc(r.matNote||"")}</textarea>`:''}
+        ${r.matNote?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${R?'\u041c\u0430\u0442\u0435\u0440\u0438\u0430\u043b':E?'Material':'Mat'}: ${esc(r.matNote)}</div>`:''}
+        ${canD&&(r.status==='rp-progress'||r.status==='rp-parked')?`<textarea onchange="saveMatNote('${r.id}',this.value)" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:6px;color:var(--white);font-size:12px;font-family:inherit;resize:none;height:48px;outline:none;margin-top:5px" placeholder="${R?'\u041c\u0430\u0442\u0435\u0440\u0438\u0430\u043b...':E?'Material...':'Material...'}">${esc(r.matNote||"")}</textarea>`:''}
         ${imgs.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${imgs.map(im=>`<img src="${im}" class="repimg" onclick="openLB('${im}')">`).join('')}</div>`:''}
         <div class="repmeta">${PL[r.prio]||''}${r.tAccepted?' \u00b7 \u25b6 '+r.tAccepted+' ('+esc(r.byAccepted||'?')+')':''}</div>
         ${acts.trim()?`<div class="arow">${acts}</div>`:''}
@@ -1444,21 +1451,21 @@ function renderRepairTab(){
 
   return`
   <div style="display:flex;align-items:center;margin-bottom:12px">
-    ${!showRF&&canAct('rep_submit')?`<button class="btn btn-rep" style="flex:1;margin-right:8px;padding:11px" onclick="showRF=true;render()">${R?'+ \u041d\u043e\u0432\u044b\u0439 \u0440\u0435\u043c\u043e\u043d\u0442':'+ Neue Reparatur'}</button>`:'<div style="flex:1"></div>'}
+    ${!showRF&&canAct('rep_submit')?`<button class="btn btn-rep" style="flex:1;margin-right:8px;padding:11px" onclick="showRF=true;render()">${R?'+ \u041d\u043e\u0432\u044b\u0439 \u0440\u0435\u043c\u043e\u043d\u0442':E?'+ New Repair':'+ Neue Reparatur'}</button>`:'<div style="flex:1"></div>'}
     ${langBtns()}
   </div>
   ${form}
   <div class="srchwrap" style="margin-bottom:8px">
     <span class="srchico">\ud83d\udd0d</span>
-    <input class="srchinp" id="rp-q" type="text" placeholder="${R?'\u041f\u043e\u0438\u0441\u043a...':'Suchen...'}" oninput="rpQ=this.value;render()">
+    <input class="srchinp" id="rp-q" type="text" placeholder="${R?'\u041f\u043e\u0438\u0441\u043a...':E?'Search...':'Suchen...'}" oninput="rpQ=this.value;render()">
     <button class="srchclr${rpQ?' vis':''}" onclick="rpQ='';render()">\u2715</button>
   </div>
   <div class="ftabs">
-    <button class="ftab${rpF==='all'?' on':''}" onclick="rpF='all';render()">${R?'\u0412\u0441\u0435':'Alle'}</button>
-    <button class="ftab${rpF==='rp-open'?' on':''}" onclick="rpF='rp-open';render()">${R?'\u041e\u0442\u043a\u0440\u044b\u0442\u043e':'Offen'}</button>
-    <button class="ftab${rpF==='rp-progress'?' on':''}" onclick="rpF='rp-progress';render()">${R?'\u0412 \u0440\u0430\u0431\u043e\u0442\u0435':'In Arbeit'}</button>
-    <button class="ftab${rpF==='rp-parked'?' on':''}" onclick="rpF='rp-parked';render()">${R?'\u041e\u0442\u043b\u043e\u0436\u0435\u043d\u043e':'Geparkt'}</button>
-    <button class="ftab${rpF==='rp-done'?' on':''}" onclick="rpF='rp-done';render()">${R?'\u0413\u043e\u0442\u043e\u0432\u043e':'Erledigt'}</button>
+    <button class="ftab${rpF==='all'?' on':''}" onclick="rpF='all';render()">${R?'\u0412\u0441\u0435':E?'All':'Alle'}</button>
+    <button class="ftab${rpF==='rp-open'?' on':''}" onclick="rpF='rp-open';render()">${R?'\u041e\u0442\u043a\u0440\u044b\u0442\u043e':E?'Open':'Offen'}</button>
+    <button class="ftab${rpF==='rp-progress'?' on':''}" onclick="rpF='rp-progress';render()">${R?'\u0412 \u0440\u0430\u0431\u043e\u0442\u0435':E?'In progress':'In Arbeit'}</button>
+    <button class="ftab${rpF==='rp-parked'?' on':''}" onclick="rpF='rp-parked';render()">${R?'\u041e\u0442\u043b\u043e\u0436\u0435\u043d\u043e':E?'Parked':'Geparkt'}</button>
+    <button class="ftab${rpF==='rp-done'?' on':''}" onclick="rpF='rp-done';render()">${R?'\u0413\u043e\u0442\u043e\u0432\u043e':E?'Done':'Erledigt'}</button>
   </div>
   ${cards}`;
 }
@@ -1608,6 +1615,7 @@ window.doSelectStaff=function(name,dept){
   saveMe({name,dept,isAdmin:false});
   screen='main';tab=dept==='technik'?'repair':'hk';persona=null;
   if(name==='Vasily'){LANG='ru';set('lang','ru');}
+  else if(LANG==='ru'){LANG='de';set('lang','de');}
   if(!isOn(name,dept)){
     if(dept==='housekeeping'){render();openFloorPicker();return;}
     else checkin(name,dept,DL[dept]);
@@ -1712,8 +1720,10 @@ var I18N={
 function t(k){return(I18N[LANG]&&I18N[LANG][k])||I18N.de[k]||k;}
 function setLang(l){LANG=l;set('lang',l);render();}
 function langBtns(){
+  var u=eu()||{name:''};
+  if(u.name==='Vasily')return '';
   var h='<div style="display:flex;gap:3px;margin-left:8px">';
-  var langs=['de','en','ru','tr','bg'];
+  var langs=['de','en'];
   for(var i=0;i<langs.length;i++){
     var l=langs[i];
     h+='<button onclick="setLang(\''+l+'\')" style="padding:3px 6px;border:1px solid '+(LANG===l?'var(--gold)':'rgba(255,255,255,.2)')+';border-radius:5px;background:'+(LANG===l?'var(--gdim)':'transparent')+';color:'+(LANG===l?'var(--gold)':'rgba(255,255,255,.5)')+';font-size:10px;cursor:pointer;font-family:inherit">'+l.toUpperCase()+'</button>';
@@ -1828,33 +1838,33 @@ function saveClData(){set(CL_KEY,clData);}
 function saveSiData(){set(SI_KEY,siData);}
 
 var DEFAULT_CL_ITEMS=[
-  {id:'c01',cat:'Morgen',catRu:'Утро',p:false,l:'Fruehdienstbericht Rezeption abgeholt',r:'Получен отчёт ранней смены ресепшн'},
-  {id:'c02',cat:'Morgen',catRu:'Утро',p:false,l:'Schichtuebegabe mit Nachtdienst',r:'Передача смены от ночной смены'},
-  {id:'c03',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',p:false,l:'Kueche auf Sauberkeit geprueft',r:'Кухня проверена на чистоту'},
-  {id:'c04',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',p:false,l:'Kuehltemperaturen kontrolliert',r:'Проверена температура холодильников'},
-  {id:'c05',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',p:false,l:'Mise en place vorbereitet',r:'Подготовлена мизанплас'},
-  {id:'c06',cat:'Aussen & Fassade',catRu:'Улица и фасад',p:false,l:'Eingangsbereich gereinigt',r:'Убрана входная зона'},
-  {id:'c07',cat:'Aussen & Fassade',catRu:'Улица и фасад',p:false,l:'Beleuchtung Fassade geprueft',r:'Проверено освещение фасада'},
-  {id:'c08',cat:'Brandschutz',catRu:'Пожарная безопасность',p:true,l:'Bosch BMZ FB1-006876 kontrolliert',r:'Проверена система Bosch BMZ FB1-006876'},
-  {id:'c09',cat:'Brandschutz',catRu:'Пожарная безопасность',p:true,l:'Feuerloescher auf Zugaenglichkeit geprueft',r:'Проверена доступность огнетушителей'},
-  {id:'c10',cat:'Aufzug & Technik',catRu:'Лифт и техника',p:true,l:'Aufzug Notruf getestet',r:'Проверен аварийный вызов лифта'},
-  {id:'c11',cat:'Aufzug & Technik',catRu:'Лифт и техника',p:true,l:'Legionellenschutz 60C geprueft',r:'Проверена защита от легионеллы 60°C'},
-  {id:'c12',cat:'Aufzug & Technik',catRu:'Лифт и техника',p:false,l:'Heizungsanlage kontrolliert',r:'Проверена система отопления'},
-  {id:'c13',cat:'Allgemeinbereiche',catRu:'Общие зоны',p:false,l:'Lobby und Empfang gereinigt',r:'Убрано лобби и ресепшн'},
-  {id:'c14',cat:'Allgemeinbereiche',catRu:'Общие зоны',p:false,l:'Aufzugkabine gereinigt',r:'Убрана кабина лифта'},
-  {id:'c15',cat:'Allgemeinbereiche',catRu:'Общие зоны',p:false,l:'Treppenhaus geprueft',r:'Проверена лестничная клетка'},
-  {id:'c16',cat:'Allgemeinbereiche',catRu:'Общие зоны',p:false,l:'Gemeinschaftsbaeder geprueft',r:'Проверены общие ванные комнаты'},
-  {id:'c17',cat:'Zimmertechnik',catRu:'Техника номеров',p:false,l:'VingCard Vostio System Online',r:'Система VingCard Vostio онлайн'},
-  {id:'c18',cat:'Zimmertechnik',catRu:'Техника номеров',p:false,l:'Stichproben Zimmerschloesser',r:'Выборочная проверка замков номеров'},
-  {id:'c19',cat:'Zimmertechnik',catRu:'Техника номеров',p:false,l:'WLAN-Access-Points geprueft',r:'Проверены точки доступа WLAN'},
-  {id:'c20',cat:'Abend',catRu:'Вечер',p:false,l:'Abendkontrolle Allgemeinbereiche',r:'Вечерняя проверка общих зон'},
-  {id:'c21',cat:'Abend',catRu:'Вечер',p:false,l:'Nachtdienst eingewiesen',r:'Проведён инструктаж ночной смены'},
-  {id:'c22',cat:'Abend',catRu:'Вечер',p:false,l:'Tagesprotokoll abgeschlossen',r:'Завершён дневной протокол'},
-  {id:'c23',cat:'Abend',catRu:'Вечер',p:false,l:'Schluesseluebergabe dokumentiert',r:'Задокументирована передача ключей'},
-  {id:'c24',cat:'Abend',catRu:'Вечер',p:false,l:'Kassenabrechnung geprueft (Rezeption)',r:'Проверена кассовая отчётность (ресепшн)'},
-  {id:'c25',cat:'Abend',catRu:'Вечер',p:false,l:'Aussentueren gesichert',r:'Заблокированы наружные двери'},
-  {id:'c26',cat:'Abend',catRu:'Вечер',p:false,l:'Sicherheitskameras online',r:'Камеры безопасности онлайн'},
-  {id:'c27',cat:'Abend',catRu:'Вечер',p:false,l:'Heizung/AC Nachtmodus',r:'Отопление/кондиционер — ночной режим'}
+  {id:'c01',cat:'Morgen',catRu:'Утро',catEn:'Morning',p:false,l:'Fruehdienstbericht Rezeption abgeholt',r:'Получен отчёт ранней смены ресепшн',en:'Front desk early shift report collected'},
+  {id:'c02',cat:'Morgen',catRu:'Утро',catEn:'Morning',p:false,l:'Schichtuebegabe mit Nachtdienst',r:'Передача смены от ночной смены',en:'Shift handover with night duty'},
+  {id:'c03',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',catEn:'KÖK Restaurant',p:false,l:'Kueche auf Sauberkeit geprueft',r:'Кухня проверена на чистоту',en:'Kitchen checked for cleanliness'},
+  {id:'c04',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',catEn:'KÖK Restaurant',p:false,l:'Kuehltemperaturen kontrolliert',r:'Проверена температура холодильников',en:'Fridge temperatures checked'},
+  {id:'c05',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',catEn:'KÖK Restaurant',p:false,l:'Mise en place vorbereitet',r:'Подготовлена мизанплас',en:'Mise en place prepared'},
+  {id:'c06',cat:'Aussen & Fassade',catRu:'Улица и фасад',catEn:'Exterior & facade',p:false,l:'Eingangsbereich gereinigt',r:'Убрана входная зона',en:'Entrance area cleaned'},
+  {id:'c07',cat:'Aussen & Fassade',catRu:'Улица и фасад',catEn:'Exterior & facade',p:false,l:'Beleuchtung Fassade geprueft',r:'Проверено освещение фасада',en:'Facade lighting checked'},
+  {id:'c08',cat:'Brandschutz',catRu:'Пожарная безопасность',catEn:'Fire safety',p:true,l:'Bosch BMZ FB1-006876 kontrolliert',r:'Проверена система Bosch BMZ FB1-006876',en:'Bosch BMZ FB1-006876 checked'},
+  {id:'c09',cat:'Brandschutz',catRu:'Пожарная безопасность',catEn:'Fire safety',p:true,l:'Feuerloescher auf Zugaenglichkeit geprueft',r:'Проверена доступность огнетушителей',en:'Fire extinguishers checked for accessibility'},
+  {id:'c10',cat:'Aufzug & Technik',catRu:'Лифт и техника',catEn:'Elevator & technical',p:true,l:'Aufzug Notruf getestet',r:'Проверен аварийный вызов лифта',en:'Elevator emergency call tested'},
+  {id:'c11',cat:'Aufzug & Technik',catRu:'Лифт и техника',catEn:'Elevator & technical',p:true,l:'Legionellenschutz 60C geprueft',r:'Проверена защита от легионеллы 60°C',en:'Legionella protection 60C checked'},
+  {id:'c12',cat:'Aufzug & Technik',catRu:'Лифт и техника',catEn:'Elevator & technical',p:false,l:'Heizungsanlage kontrolliert',r:'Проверена система отопления',en:'Heating system checked'},
+  {id:'c13',cat:'Allgemeinbereiche',catRu:'Общие зоны',catEn:'Common areas',p:false,l:'Lobby und Empfang gereinigt',r:'Убрано лобби и ресепшн',en:'Lobby and reception cleaned'},
+  {id:'c14',cat:'Allgemeinbereiche',catRu:'Общие зоны',catEn:'Common areas',p:false,l:'Aufzugkabine gereinigt',r:'Убрана кабина лифта',en:'Elevator cabin cleaned'},
+  {id:'c15',cat:'Allgemeinbereiche',catRu:'Общие зоны',catEn:'Common areas',p:false,l:'Treppenhaus geprueft',r:'Проверена лестничная клетка',en:'Staircase checked'},
+  {id:'c16',cat:'Allgemeinbereiche',catRu:'Общие зоны',catEn:'Common areas',p:false,l:'Gemeinschaftsbaeder geprueft',r:'Проверены общие ванные комнаты',en:'Shared bathrooms checked'},
+  {id:'c17',cat:'Zimmertechnik',catRu:'Техника номеров',catEn:'Room technology',p:false,l:'VingCard Vostio System Online',r:'Система VingCard Vostio онлайн',en:'VingCard Vostio system online'},
+  {id:'c18',cat:'Zimmertechnik',catRu:'Техника номеров',catEn:'Room technology',p:false,l:'Stichproben Zimmerschloesser',r:'Выборочная проверка замков номеров',en:'Random sample checks of room locks'},
+  {id:'c19',cat:'Zimmertechnik',catRu:'Техника номеров',catEn:'Room technology',p:false,l:'WLAN-Access-Points geprueft',r:'Проверены точки доступа WLAN',en:'WiFi access points checked'},
+  {id:'c20',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Abendkontrolle Allgemeinbereiche',r:'Вечерняя проверка общих зон',en:'Evening check of common areas'},
+  {id:'c21',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Nachtdienst eingewiesen',r:'Проведён инструктаж ночной смены',en:'Night duty briefed'},
+  {id:'c22',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Tagesprotokoll abgeschlossen',r:'Завершён дневной протокол',en:'Daily log completed'},
+  {id:'c23',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Schluesseluebergabe dokumentiert',r:'Задокументирована передача ключей',en:'Key handover documented'},
+  {id:'c24',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Kassenabrechnung geprueft (Rezeption)',r:'Проверена кассовая отчётность (ресепшн)',en:'Cash register checked (reception)'},
+  {id:'c25',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Aussentueren gesichert',r:'Заблокированы наружные двери',en:'Exterior doors secured'},
+  {id:'c26',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Sicherheitskameras online',r:'Камеры безопасности онлайн',en:'Security cameras online'},
+  {id:'c27',cat:'Abend',catRu:'Вечер',catEn:'Evening',p:false,l:'Heizung/AC Nachtmodus',r:'Отопление/кондиционер — ночной режим',en:'Heating/AC night mode'}
 ];
 
 var SI_ROOMS=(function(){
@@ -1880,46 +1890,46 @@ function siMenge(num,val){if(!siData.rooms)siData.rooms={};if(!siData.rooms[num]
 // ── CHECKLIST RENDER ──────────────────────────────────
 function renderChecklistTab(){
   var u=eu()||{dept:'',name:''};var s=clData.status;
-  var R=(LANG==='ru');
+  var R=(LANG==='ru');var E=(LANG==='en');
   var canEdit=(u.dept==='technik'||u.dept==='admin');
   var done=0;for(var k in clData.items)if(clData.items[k])done++;
   var pct=CL_ITEMS.length>0?Math.round(done/CL_ITEMS.length*100):0;
   var h='';
   if(s==='cl-open'){
     h+='<div style="background:#1a0a0a;border:1px solid #cc3333;border-radius:12px;padding:16px;margin-bottom:14px">';
-    h+='<div style="color:#ff6666;font-size:13px;font-weight:700;margin-bottom:12px">'+(R?'Ежедневный чек-лист — ОТКРЫТ':'Taegliche Checkliste - OFFEN')+'</div>';
-    if(canEdit)h+='<button onclick="clAccept()" style="width:100%;padding:13px;border:none;border-radius:10px;background:var(--gold);color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">'+(R?'Принять чек-лист':'Checkliste annehmen')+'</button>';
+    h+='<div style="color:#ff6666;font-size:13px;font-weight:700;margin-bottom:12px">'+(R?'Ежедневный чек-лист — ОТКРЫТ':E?'Daily Checklist - OPEN':'Taegliche Checkliste - OFFEN')+'</div>';
+    if(canEdit)h+='<button onclick="clAccept()" style="width:100%;padding:13px;border:none;border-radius:10px;background:var(--gold);color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">'+(R?'Принять чек-лист':E?'Accept checklist':'Checkliste annehmen')+'</button>';
     h+='</div>';
     return h;
   }
   if(s==='cl-accepted'){
     h+='<div style="background:#1a0f00;border:1px solid #cc7700;border-radius:12px;padding:14px;margin-bottom:14px">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    h+='<div><div style="color:#ffaa33;font-size:13px;font-weight:700">'+(R?'В РАБОТЕ':'IN BEARBEITUNG')+'</div>';
+    h+='<div><div style="color:#ffaa33;font-size:13px;font-weight:700">'+(R?'В РАБОТЕ':E?'IN PROGRESS':'IN BEARBEITUNG')+'</div>';
     h+='<div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px">'+esc(clData.acceptedBy||'?')+' '+esc(clData.tAccepted||'')+'</div>';
     h+='<div style="color:#ffaa33;font-size:12px;margin-top:4px">'+done+'/'+CL_ITEMS.length+' ('+pct+'%)</div></div>';
-    if(canEdit)h+='<button onclick="clComplete()" style="padding:10px 16px;border:none;border-radius:10px;background:#22cc44;color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">'+(R?'Завершить':'Abschliessen')+'</button>';
+    if(canEdit)h+='<button onclick="clComplete()" style="padding:10px 16px;border:none;border-radius:10px;background:#22cc44;color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">'+(R?'Завершить':E?'Complete':'Abschliessen')+'</button>';
     h+='</div>';
     h+='<div style="background:rgba(0,0,0,.3);border-radius:6px;height:5px;margin-top:10px">';
     h+='<div style="background:#22cc44;height:5px;border-radius:6px;width:'+pct+'%"></div></div></div>';
   } else {
     h+='<div style="background:#001a08;border:1px solid #22cc44;border-radius:12px;padding:14px;margin-bottom:14px">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    h+='<div><div style="color:#22cc44;font-size:13px;font-weight:700">'+(R?'ЗАВЕРШЕНО':'ABGESCHLOSSEN')+'</div>';
+    h+='<div><div style="color:#22cc44;font-size:13px;font-weight:700">'+(R?'ЗАВЕРШЕНО':E?'COMPLETED':'ABGESCHLOSSEN')+'</div>';
     h+='<div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px">'+esc(clData.acceptedBy||'?')+' '+esc(clData.tDone||'')+'</div></div>';
     if(u.dept==='admin')h+='<button onclick="clReset()" style="padding:8px 14px;border:1px solid #cc3333;border-radius:8px;background:#1a0a0a;color:#ff6666;font-size:12px;cursor:pointer;font-family:inherit">Reset</button>';
     h+='</div></div>';
   }
   var canCheck=(canEdit&&s==='cl-accepted');
   var cats={};var catOrder=[];
-  for(var i=0;i<CL_ITEMS.length;i++){var it=CL_ITEMS[i];var ck=R?(it.catRu||it.cat):it.cat;if(!cats[ck]){cats[ck]=[];catOrder.push(ck);}cats[ck].push(it);}
+  for(var i=0;i<CL_ITEMS.length;i++){var it=CL_ITEMS[i];var ck=R?(it.catRu||it.cat):E?(it.catEn||it.cat):it.cat;if(!cats[ck]){cats[ck]=[];catOrder.push(ck);}cats[ck].push(it);}
   for(var ci=0;ci<catOrder.length;ci++){
     var cat=catOrder[ci];
     h+='<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06)">'+cat+'</div>';
     var its=cats[cat];
     for(var ii=0;ii<its.length;ii++){
       var it2=its[ii];var chk=!!(clData.items&&clData.items[it2.id]);
-      var lbl=R?(it2.r||it2.l):it2.l;
+      var lbl=R?(it2.r||it2.l):E?(it2.en||it2.l):it2.l;
       h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--navy2);border-radius:10px;margin-bottom:5px;border:1px solid '+(chk?'#22cc44':'rgba(255,255,255,.06)')+'">';
       if(canCheck){
         h+='<button onclick="clToggle(\''+it2.id+'\')" style="width:22px;height:22px;border-radius:5px;border:2px solid '+(chk?'#22cc44':'rgba(255,255,255,.3)')+';background:'+(chk?'#22cc44':'transparent')+';cursor:pointer;flex-shrink:0;padding:0">';
@@ -1931,7 +1941,7 @@ function renderChecklistTab(){
         h+='</div>';
       }
       h+='<div style="flex:1;font-size:13px;color:'+(chk?'#22cc44':'var(--white)')+'">'+esc(lbl);
-      if(it2.p)h+=' <span style="background:#1a0a0a;color:#ff6666;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700">'+(R?'ОБЯЗАТ.':'PFLICHT')+'</span>';
+      if(it2.p)h+=' <span style="background:#1a0a0a;color:#ff6666;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700">'+(R?'ОБЯЗАТ.':E?'REQUIRED':'PFLICHT')+'</span>';
       h+='</div></div>';
     }
     h+='</div>';
@@ -2276,65 +2286,65 @@ var ROOM_MAENGEL={
 };
 
 var DEFAULT_ROOM_CL_ITEMS=[
-  {id:'b01',cat:'Badezimmer',catRu:'Ванная',l:'Tuerzarge Bad: Aufquellen, Schimmel, Zustand',r:'Дверная коробка ванной: набухание, плесень, состояние'},
-  {id:'b02',cat:'Badezimmer',catRu:'Ванная',l:'Duschbatterie: Funktion, Dichtung, Kalk',r:'Смеситель душа: работа, уплотнение, известковый налёт'},
-  {id:'b03',cat:'Badezimmer',catRu:'Ванная',l:'Duschbrause: Kalk, Durchfluss',r:'Лейка душа: налёт, напор воды'},
-  {id:'b04',cat:'Badezimmer',catRu:'Ванная',l:'Duschschlauch: Zustand, Dichtheit',r:'Шланг душа: состояние, герметичность'},
-  {id:'b05',cat:'Badezimmer',catRu:'Ванная',l:'Duschabtrennung: Dichtung, Silikon, Schienen',r:'Душевое ограждение: уплотнение, силикон, направляющие'},
-  {id:'b06',cat:'Badezimmer',catRu:'Ванная',l:'Abfluss Dusche: Geruchsverschluss, Abdeckung',r:'Слив душа: сифон, крышка'},
-  {id:'b07',cat:'Badezimmer',catRu:'Ванная',l:'Waschbecken: Wasserhahn, Dichtung',r:'Раковина: кран, уплотнение'},
-  {id:'b08',cat:'Badezimmer',catRu:'Ванная',l:'WB-Unterschrank: Aufquellen, Zustand',r:'Тумба под раковиной: набухание, состояние'},
-  {id:'b09',cat:'Badezimmer',catRu:'Ванная',l:'Waschbecken: Abfluss, Geruchsverschluss',r:'Раковина: слив, сифон'},
-  {id:'b10',cat:'Badezimmer',catRu:'Ванная',l:'Toilette: Spuelung, Sitz, Dichtungen',r:'Унитаз: смыв, сиденье, уплотнения'},
-  {id:'b11',cat:'Badezimmer',catRu:'Ванная',l:'Spiegel: Befestigung, Zustand',r:'Зеркало: крепление, состояние'},
-  {id:'b12',cat:'Badezimmer',catRu:'Ванная',l:'Handtuchhalter + Toilettenpapierhalter',r:'Держатель полотенец и туалетной бумаги'},
-  {id:'b13',cat:'Badezimmer',catRu:'Ванная',l:'Lueftung Bad: Funktion, sauber',r:'Вентиляция ванной: работа, чистота'},
-  {id:'b14',cat:'Badezimmer',catRu:'Ванная',l:'Beleuchtung Bad: alle Lampen OK',r:'Освещение ванной: все лампы работают'},
-  {id:'b15',cat:'Badezimmer',catRu:'Ванная',l:'Steckdose Bad: Funktion, Sicherheit',r:'Розетка в ванной: работа, безопасность'},
-  {id:'b16',cat:'Badezimmer',catRu:'Ванная',l:'Foen: Funktion, Kabel, im Schrank',r:'Фен: работа, кабель, в шкафу'},
-  {id:'b17',cat:'Badezimmer',catRu:'Ванная',l:'Silikon: Dusche, Waschbecken - Zustand',r:'Силикон: душ, раковина — состояние'},
-  {id:'b18',cat:'Badezimmer',catRu:'Ванная',l:'Fliesen: Risse, lose Fliesen, Fugen',r:'Плитка: трещины, отслоение, швы'},
-  {id:'k01',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Herdplatte: alle Platten funktionieren',r:'Плита: все конфорки работают'},
-  {id:'k02',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Mikrowelle: Funktion, Drehscheibe',r:'Микроволновка: работа, поддон'},
-  {id:'k03',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Kuehlschrank/Minibar: Kuehlleistung, Dichtung',r:'Холодильник/минибар: охлаждение, уплотнение'},
-  {id:'k04',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Kuehlschrank: Tuer schliesst sauber',r:'Холодильник: дверь закрывается плотно'},
-  {id:'k05',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Waschbecken Kueche: Wasserhahn, Abfluss',r:'Раковина кухни: кран, слив'},
-  {id:'k06',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',l:'Schraenke Kueche: Scharniere, Griffe',r:'Кухонные шкафы: петли, ручки'},
-  {id:'f01',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Jalousie: Funktion, Motor, Knopf/Steuerung',r:'Жалюзи: работа, мотор, кнопка/управление'},
-  {id:'f02',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Vorhang/Gardine: Aufhaengung, Motor, Knopf',r:'Штора/гардина: крепление, мотор, кнопка'},
-  {id:'f03',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Gardinenkabel: angeschlossen, keine offenen Enden',r:'Кабель гардины: подключён, нет открытых концов'},
-  {id:'f04',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Fenster: Dichtung, Schliessung, Griff',r:'Окно: уплотнение, закрывание, ручка'},
-  {id:'f05',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',l:'Fassadenspalt: abgedichtet, kein Spalt',r:'Фасадная щель: заделана, зазоров нет'},
-  {id:'e01',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Alle Deckenlampen funktionieren',r:'Все потолочные светильники работают'},
-  {id:'e02',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Nachttischlampen links und rechts OK',r:'Прикроватные лампы слева и справа работают'},
-  {id:'e03',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Alle Steckdosen funktionieren',r:'Все розетки работают'},
-  {id:'e04',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'USB-Ladepunkte funktionieren',r:'USB-разъёмы работают'},
-  {id:'e05',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'SuitePad: Funktion, Laden',r:'SuitePad: работа, зарядка'},
-  {id:'e06',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'TV: Funktion, Fernbedienung',r:'Телевизор: работа, пульт'},
-  {id:'e07',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Lichtschalter alle funktionieren',r:'Все выключатели работают'},
-  {id:'e08',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Safe: Funktion, Batterie',r:'Сейф: работа, батарея'},
-  {id:'e09',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Telefon: Funktion',r:'Телефон: работа'},
-  {id:'e10',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',l:'Revisionsdeckel: vorhanden, geschlossen',r:'Ревизионные крышки: на месте, закрыты'},
-  {id:'m01',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Bett: Gestell, Beine, Stabilitaet',r:'Кровать: рама, ножки, устойчивость'},
-  {id:'m02',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Matratze: Zustand, kein Durchhaengen',r:'Матрас: состояние, нет провисания'},
-  {id:'m03',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Kleiderschrank: Scharniere, Tueren, Griffe',r:'Шкаф: петли, дверцы, ручки'},
-  {id:'m04',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Buegelbrett + Buegeleisen: vorhanden, OK',r:'Гладильная доска и утюг: наличие, состояние'},
-  {id:'m05',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Nachttische: Stabilitaet, Schublade',r:'Тумбочки: устойчивость, ящик'},
-  {id:'m06',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Sitztisch + Sessel: Stabilitaet, Polster',r:'Столик и кресло: устойчивость, обивка'},
-  {id:'m07',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Schreibtisch: Stabilitaet, Schubladen',r:'Письменный стол: устойчивость, ящики'},
-  {id:'m08',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',l:'Spiegel Zimmer: Befestigung',r:'Зеркало в комнате: крепление'},
-  {id:'t01',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Zimmertuer: schliesst sauber, kein Schleifen',r:'Дверь номера: закрывается плотно, нет скрипа'},
-  {id:'t02',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'VingCard Schloss: Funktion, Reaktion',r:'Замок VingCard: работа, срабатывание'},
-  {id:'t03',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Tuerstopper + Sicherheitskette: OK',r:'Ограничитель двери и цепочка: OK'},
-  {id:'t04',cat:'Tuer und Schloss',catRu:'Дверь и замок',l:'Badtuer: Schloss, Scharniere, Zustand',r:'Дверь ванной: замок, петли, состояние'},
-  {id:'w01',cat:'Waende und Boden',catRu:'Стены и пол',l:'Waende: keine Flecken, Risse, Schimmel',r:'Стены: нет пятен, трещин, плесени'},
-  {id:'w02',cat:'Waende und Boden',catRu:'Стены и пол',l:'Decke: keine Flecken, Wasserschaeden',r:'Потолок: нет пятен, следов воды'},
-  {id:'w03',cat:'Waende und Boden',catRu:'Стены и пол',l:'Sockelleisten: befestigt, Zustand',r:'Плинтусы: закреплены, состояние'},
-  {id:'w04',cat:'Waende und Boden',catRu:'Стены и пол',l:'Teppich: keine Risse, Flecken, lose Stellen',r:'Ковёр: нет порывов, пятен, отслоений'},
-  {id:'c01',cat:'Klimaanlage',catRu:'Кондиционер',l:'Klimaanlage: Kuehlen und Heizen OK',r:'Кондиционер: охлаждение и обогрев работают'},
-  {id:'c02',cat:'Klimaanlage',catRu:'Кондиционер',l:'Filter gereinigt',r:'Фильтр очищен'},
-  {id:'c03',cat:'Klimaanlage',catRu:'Кондиционер',l:'Thermostat/Steuerung: Funktion',r:'Термостат/управление: работа'},
-  {id:'c04',cat:'Klimaanlage',catRu:'Кондиционер',l:'Lueftungsgitter: sauber, befestigt',r:'Вентиляционная решётка: чистая, закреплена'}
+  {id:'b01',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Tuerzarge Bad: Aufquellen, Schimmel, Zustand',r:'Дверная коробка ванной: набухание, плесень, состояние',en:'Bathroom door frame: swelling, mold, condition'},
+  {id:'b02',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Duschbatterie: Funktion, Dichtung, Kalk',r:'Смеситель душа: работа, уплотнение, известковый налёт',en:'Shower mixer: function, seal, limescale'},
+  {id:'b03',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Duschbrause: Kalk, Durchfluss',r:'Лейка душа: налёт, напор воды',en:'Shower head: limescale, water flow'},
+  {id:'b04',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Duschschlauch: Zustand, Dichtheit',r:'Шланг душа: состояние, герметичность',en:'Shower hose: condition, tightness'},
+  {id:'b05',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Duschabtrennung: Dichtung, Silikon, Schienen',r:'Душевое ограждение: уплотнение, силикон, направляющие',en:'Shower partition: seal, silicone, rails'},
+  {id:'b06',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Abfluss Dusche: Geruchsverschluss, Abdeckung',r:'Слив душа: сифон, крышка',en:'Shower drain: trap, cover'},
+  {id:'b07',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Waschbecken: Wasserhahn, Dichtung',r:'Раковина: кран, уплотнение',en:'Sink: faucet, seal'},
+  {id:'b08',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'WB-Unterschrank: Aufquellen, Zustand',r:'Тумба под раковиной: набухание, состояние',en:'Sink cabinet: swelling, condition'},
+  {id:'b09',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Waschbecken: Abfluss, Geruchsverschluss',r:'Раковина: слив, сифон',en:'Sink: drain, trap'},
+  {id:'b10',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Toilette: Spuelung, Sitz, Dichtungen',r:'Унитаз: смыв, сиденье, уплотнения',en:'Toilet: flush, seat, seals'},
+  {id:'b11',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Spiegel: Befestigung, Zustand',r:'Зеркало: крепление, состояние',en:'Mirror: mounting, condition'},
+  {id:'b12',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Handtuchhalter + Toilettenpapierhalter',r:'Держатель полотенец и туалетной бумаги',en:'Towel holder + toilet paper holder'},
+  {id:'b13',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Lueftung Bad: Funktion, sauber',r:'Вентиляция ванной: работа, чистота',en:'Bathroom ventilation: function, clean'},
+  {id:'b14',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Beleuchtung Bad: alle Lampen OK',r:'Освещение ванной: все лампы работают',en:'Bathroom lighting: all lamps OK'},
+  {id:'b15',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Steckdose Bad: Funktion, Sicherheit',r:'Розетка в ванной: работа, безопасность',en:'Bathroom outlet: function, safety'},
+  {id:'b16',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Foen: Funktion, Kabel, im Schrank',r:'Фен: работа, кабель, в шкафу',en:'Hairdryer: function, cable, in cabinet'},
+  {id:'b17',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Silikon: Dusche, Waschbecken - Zustand',r:'Силикон: душ, раковина — состояние',en:'Silicone: shower, sink - condition'},
+  {id:'b18',cat:'Badezimmer',catRu:'Ванная',catEn:'Bathroom',l:'Fliesen: Risse, lose Fliesen, Fugen',r:'Плитка: трещины, отслоение, швы',en:'Tiles: cracks, loose tiles, grout'},
+  {id:'k01',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Herdplatte: alle Platten funktionieren',r:'Плита: все конфорки работают',en:'Stove: all plates working'},
+  {id:'k02',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Mikrowelle: Funktion, Drehscheibe',r:'Микроволновка: работа, поддон',en:'Microwave: function, turntable'},
+  {id:'k03',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Kuehlschrank/Minibar: Kuehlleistung, Dichtung',r:'Холодильник/минибар: охлаждение, уплотнение',en:'Fridge/minibar: cooling performance, seal'},
+  {id:'k04',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Kuehlschrank: Tuer schliesst sauber',r:'Холодильник: дверь закрывается плотно',en:'Fridge: door closes properly'},
+  {id:'k05',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Waschbecken Kueche: Wasserhahn, Abfluss',r:'Раковина кухни: кран, слив',en:'Kitchen sink: faucet, drain'},
+  {id:'k06',cat:'Kueche / Minibar',catRu:'Кухня / Минибар',catEn:'Kitchen / Minibar',l:'Schraenke Kueche: Scharniere, Griffe',r:'Кухонные шкафы: петли, ручки',en:'Kitchen cabinets: hinges, handles'},
+  {id:'f01',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',catEn:'Windows and blinds',l:'Jalousie: Funktion, Motor, Knopf/Steuerung',r:'Жалюзи: работа, мотор, кнопка/управление',en:'Blind: function, motor, button/control'},
+  {id:'f02',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',catEn:'Windows and blinds',l:'Vorhang/Gardine: Aufhaengung, Motor, Knopf',r:'Штора/гардина: крепление, мотор, кнопка',en:'Curtain: hanging, motor, button'},
+  {id:'f03',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',catEn:'Windows and blinds',l:'Gardinenkabel: angeschlossen, keine offenen Enden',r:'Кабель гардины: подключён, нет открытых концов',en:'Curtain cable: connected, no loose ends'},
+  {id:'f04',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',catEn:'Windows and blinds',l:'Fenster: Dichtung, Schliessung, Griff',r:'Окно: уплотнение, закрывание, ручка',en:'Window: seal, closing, handle'},
+  {id:'f05',cat:'Fenster und Jalousien',catRu:'Окна и жалюзи',catEn:'Windows and blinds',l:'Fassadenspalt: abgedichtet, kein Spalt',r:'Фасадная щель: заделана, зазоров нет',en:'Facade gap: sealed, no gap'},
+  {id:'e01',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Alle Deckenlampen funktionieren',r:'Все потолочные светильники работают',en:'All ceiling lamps working'},
+  {id:'e02',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Nachttischlampen links und rechts OK',r:'Прикроватные лампы слева и справа работают',en:'Bedside lamps left and right OK'},
+  {id:'e03',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Alle Steckdosen funktionieren',r:'Все розетки работают',en:'All outlets working'},
+  {id:'e04',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'USB-Ladepunkte funktionieren',r:'USB-разъёмы работают',en:'USB charging ports working'},
+  {id:'e05',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'SuitePad: Funktion, Laden',r:'SuitePad: работа, зарядка',en:'SuitePad: function, charging'},
+  {id:'e06',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'TV: Funktion, Fernbedienung',r:'Телевизор: работа, пульт',en:'TV: function, remote control'},
+  {id:'e07',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Lichtschalter alle funktionieren',r:'Все выключатели работают',en:'All light switches working'},
+  {id:'e08',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Safe: Funktion, Batterie',r:'Сейф: работа, батарея',en:'Safe: function, battery'},
+  {id:'e09',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Telefon: Funktion',r:'Телефон: работа',en:'Phone: function'},
+  {id:'e10',cat:'Elektrik und Beleuchtung',catRu:'Электрика и освещение',catEn:'Electrics and lighting',l:'Revisionsdeckel: vorhanden, geschlossen',r:'Ревизионные крышки: на месте, закрыты',en:'Access panels: present, closed'},
+  {id:'m01',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Bett: Gestell, Beine, Stabilitaet',r:'Кровать: рама, ножки, устойчивость',en:'Bed: frame, legs, stability'},
+  {id:'m02',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Matratze: Zustand, kein Durchhaengen',r:'Матрас: состояние, нет провисания',en:'Mattress: condition, no sagging'},
+  {id:'m03',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Kleiderschrank: Scharniere, Tueren, Griffe',r:'Шкаф: петли, дверцы, ручки',en:'Wardrobe: hinges, doors, handles'},
+  {id:'m04',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Buegelbrett + Buegeleisen: vorhanden, OK',r:'Гладильная доска и утюг: наличие, состояние',en:'Ironing board + iron: present, OK'},
+  {id:'m05',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Nachttische: Stabilitaet, Schublade',r:'Тумбочки: устойчивость, ящик',en:'Nightstands: stability, drawer'},
+  {id:'m06',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Sitztisch + Sessel: Stabilitaet, Polster',r:'Столик и кресло: устойчивость, обивка',en:'Table + armchair: stability, upholstery'},
+  {id:'m07',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Schreibtisch: Stabilitaet, Schubladen',r:'Письменный стол: устойчивость, ящики',en:'Desk: stability, drawers'},
+  {id:'m08',cat:'Moebel und Ausstattung',catRu:'Мебель и оснащение',catEn:'Furniture and fittings',l:'Spiegel Zimmer: Befestigung',r:'Зеркало в комнате: крепление',en:'Room mirror: mounting'},
+  {id:'t01',cat:'Tuer und Schloss',catRu:'Дверь и замок',catEn:'Door and lock',l:'Zimmertuer: schliesst sauber, kein Schleifen',r:'Дверь номера: закрывается плотно, нет скрипа',en:'Room door: closes properly, no scraping'},
+  {id:'t02',cat:'Tuer und Schloss',catRu:'Дверь и замок',catEn:'Door and lock',l:'VingCard Schloss: Funktion, Reaktion',r:'Замок VingCard: работа, срабатывание',en:'VingCard lock: function, response'},
+  {id:'t03',cat:'Tuer und Schloss',catRu:'Дверь и замок',catEn:'Door and lock',l:'Tuerstopper + Sicherheitskette: OK',r:'Ограничитель двери и цепочка: OK',en:'Door stopper + safety chain: OK'},
+  {id:'t04',cat:'Tuer und Schloss',catRu:'Дверь и замок',catEn:'Door and lock',l:'Badtuer: Schloss, Scharniere, Zustand',r:'Дверь ванной: замок, петли, состояние',en:'Bathroom door: lock, hinges, condition'},
+  {id:'w01',cat:'Waende und Boden',catRu:'Стены и пол',catEn:'Walls and floor',l:'Waende: keine Flecken, Risse, Schimmel',r:'Стены: нет пятен, трещин, плесени',en:'Walls: no stains, cracks, mold'},
+  {id:'w02',cat:'Waende und Boden',catRu:'Стены и пол',catEn:'Walls and floor',l:'Decke: keine Flecken, Wasserschaeden',r:'Потолок: нет пятен, следов воды',en:'Ceiling: no stains, water damage'},
+  {id:'w03',cat:'Waende und Boden',catRu:'Стены и пол',catEn:'Walls and floor',l:'Sockelleisten: befestigt, Zustand',r:'Плинтусы: закреплены, состояние',en:'Skirting boards: fixed, condition'},
+  {id:'w04',cat:'Waende und Boden',catRu:'Стены и пол',catEn:'Walls and floor',l:'Teppich: keine Risse, Flecken, lose Stellen',r:'Ковёр: нет порывов, пятен, отслоений',en:'Carpet: no tears, stains, loose spots'},
+  {id:'c01',cat:'Klimaanlage',catRu:'Кондиционер',catEn:'Air conditioning',l:'Klimaanlage: Kuehlen und Heizen OK',r:'Кондиционер: охлаждение и обогрев работают',en:'AC: cooling and heating OK'},
+  {id:'c02',cat:'Klimaanlage',catRu:'Кондиционер',catEn:'Air conditioning',l:'Filter gereinigt',r:'Фильтр очищен',en:'Filter cleaned'},
+  {id:'c03',cat:'Klimaanlage',catRu:'Кондиционер',catEn:'Air conditioning',l:'Thermostat/Steuerung: Funktion',r:'Термостат/управление: работа',en:'Thermostat/control: function'},
+  {id:'c04',cat:'Klimaanlage',catRu:'Кондиционер',catEn:'Air conditioning',l:'Lueftungsgitter: sauber, befestigt',r:'Вентиляционная решётка: чистая, закреплена',en:'Vent grille: clean, secured'}
 ];
 function roomClAccept(num){
   var d=getRoomCl(num);
@@ -2621,6 +2631,7 @@ function editArbItem(cat,idx){
 
 function renderRoomChecklistTab(){
   var u=eu()||{dept:'',name:'',isAdmin:false};
+  var R=(LANG==='ru');var E=(LANG==='en');
   var floors=[[101,118],[201,219],[301,318],[401,417],[501,517],[601,609]];
   var etNames=['1. OG','2. OG','3. OG','4. OG','5. OG','6. OG'];
   var total=0,done=0,inProg=0;
@@ -2633,11 +2644,11 @@ function renderRoomChecklistTab(){
     }
   }
   var h='';
-  h+='<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">Zimmer-Wartungscheckliste</div>';
+  h+='<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">'+(R?'Чек-лист обслуживания номеров':E?'Room Maintenance Checklist':'Zimmer-Wartungscheckliste')+'</div>';
   h+='<div style="display:flex;gap:8px;margin-bottom:16px">';
-  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ff6666">'+(total-done-inProg)+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">Offen</div></div>';
-  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ffaa33">'+inProg+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">In Arbeit</div></div>';
-  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#22cc44">'+done+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">Fertig</div></div>';
+  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ff6666">'+(total-done-inProg)+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">'+(R?'Открыто':E?'Open':'Offen')+'</div></div>';
+  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#ffaa33">'+inProg+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">'+(R?'В работе':E?'In progress':'In Arbeit')+'</div></div>';
+  h+='<div style="flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:#22cc44">'+done+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">'+(R?'Готово':E?'Done':'Fertig')+'</div></div>';
   h+='</div>';
   for(var fi2=0;fi2<floors.length;fi2++){
     var fRooms=[];
@@ -2655,7 +2666,7 @@ function renderRoomChecklistTab(){
       var totalItems=ROOM_CL_ITEMS.length+maengel.length;
       var isDone=rd2.status==='done';
       var stCol=isDone?'#22cc44':totalDone>0?'#ffaa33':'rgba(255,255,255,.3)';
-      var stLbl=isDone?'Fertig':totalDone>0?(totalDone+'/'+totalItems):maengel.length>0?(maengel.length+' M'):'Offen';
+      var stLbl=isDone?(R?'Готово':E?'Done':'Fertig'):totalDone>0?(totalDone+'/'+totalItems):maengel.length>0?(maengel.length+' M'):(R?'Открыто':E?'Open':'Offen');
       var borderCol=isDone?'rgba(34,200,68,.3)':maengel.length>0?'rgba(255,102,102,.2)':'rgba(255,255,255,.06)';
       h+='<div data-rcl-room="'+num+'" style="background:var(--navy2);border-radius:8px;margin-bottom:4px;border:1px solid '+borderCol+';padding:10px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">';
       h+='<div><span style="font-size:15px;font-weight:700;color:'+(isDone?'#22cc44':'var(--white)')+'">Zi. '+num+'</span>';
@@ -2694,7 +2705,7 @@ function renderRoomDetail(num){
   var isDone=rd.status==='done';
   var h='<div id="rcl-detail" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1b2e;z-index:999;overflow-y:auto;padding:16px;box-sizing:border-box">';
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
-  h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; '+(isRu?'Назад':'Zurueck')+'</button>';
+  h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; '+(isRu?'Назад':isEn?'Back':'Zurueck')+'</button>';
   h+='<span style="font-size:16px;font-weight:700;color:var(--gold)">Zimmer '+num+'</span>';
   if(isDone) h+='<span style="font-size:11px;color:#22cc44;font-weight:600">&#10003; Fertig'+(rd.elapsedMin?' ('+rpTime(rd.elapsedMin)+')':'')+'</span>';
   else if(rd.tStartMs) h+='<span style="font-size:11px;color:#ffaa33;font-weight:600">\u23f1 '+esc(rd.startedBy||'')+' \u00b7 l\u00e4uft</span>';
@@ -2702,7 +2713,7 @@ function renderRoomDetail(num){
   h+='<div style="background:rgba(0,0,0,.3);border-radius:4px;height:4px;margin-bottom:8px"><div style="background:#ffaa33;height:4px;border-radius:4px;width:'+pct+'%"></div></div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px">'+totalDone+'/'+totalItems+' erledigt</div>';
   if(maengel.length>0){
-    h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin-bottom:6px">'+(isRu?'НЕИСПРАВНОСТИ':'MAENGEL')+' ('+mDone+'/'+maengel.length+')</div>';
+    h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ff8888;margin-bottom:6px">'+(isRu?'НЕИСПРАВНОСТИ':isEn?'DEFECTS':'MAENGEL')+' ('+mDone+'/'+maengel.length+')</div>';
     for(var mj=0;mj<maengel.length;mj++){
       var mChk=!!(rd.maengelDone&&rd.maengelDone[mj]);
       h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,102,102,.1)">';
@@ -2714,22 +2725,22 @@ function renderRoomDetail(num){
     }
     h+='<div style="height:10px"></div>';
   }
-  var isRu=(LANG==='ru');
+  var isRu=(LANG==='ru');var isEn=(LANG==='en');
   var cats={};var catOrd=[];
   for(var ii=0;ii<ROOM_CL_ITEMS.length;ii++){
     var it=ROOM_CL_ITEMS[ii];
-    var cKey=isRu?(it.catRu||it.cat):it.cat;
+    var cKey=isRu?(it.catRu||it.cat):isEn?(it.catEn||it.cat):it.cat;
     if(!cats[cKey]){cats[cKey]=[];catOrd.push(cKey);}
     cats[cKey].push(it);
   }
-  h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">'+(isRu?'СТАНДАРТНАЯ ПРОВЕРКА':'STANDARDWARTUNG')+' ('+iDone+'/'+ROOM_CL_ITEMS.length+')</div>';
+  h+='<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">'+(isRu?'СТАНДАРТНАЯ ПРОВЕРКА':isEn?'STANDARD MAINTENANCE':'STANDARDWARTUNG')+' ('+iDone+'/'+ROOM_CL_ITEMS.length+')</div>';
   for(var ci=0;ci<catOrd.length;ci++){
     h+='<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);margin:8px 0 4px;text-transform:uppercase">'+catOrd[ci]+'</div>';
     var its=cats[catOrd[ci]];
     for(var ij=0;ij<its.length;ij++){
       var it2=its[ij];
       var chk=!!(rd.items&&rd.items[it2.id]);
-      var lbl=isRu?(it2.r||it2.l):it2.l;
+      var lbl=isRu?(it2.r||it2.l):isEn?(it2.en||it2.l):it2.l;
       h+='<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
       h+='<div data-rcl-tog="'+num+'" data-rcl-id="'+it2.id+'" style="width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid '+(chk?'#22cc44':'rgba(255,255,255,.2)')+';background:'+(chk?'#22cc44':'transparent')+';cursor:'+(canEdit&&!isDone?'pointer':'default')+';display:flex;align-items:center;justify-content:center">';
       if(chk) h+='<span style="color:#0d1b2e;font-size:12px;pointer-events:none">&#10003;</span>';
@@ -2743,7 +2754,7 @@ function renderRoomDetail(num){
   h+='<textarea id="rcl-note-'+num+'" rows="3" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:12px;padding:8px;font-family:inherit;resize:vertical;box-sizing:border-box"'+(isDone?' disabled':'')+'>'+(rd.notes||'').replace(/</g,'&lt;')+'</textarea>';
   h+='</div>';
   if(canEdit&&!isDone){
-    h+='<button data-rcl-done="'+num+'" style="width:100%;padding:12px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px">&#10003; '+(isRu?'Завершить':'Wartung abschliessen')+'</button>';
+    h+='<button data-rcl-done="'+num+'" style="width:100%;padding:12px;border:none;border-radius:8px;background:#22cc44;color:#0d1b2e;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px">&#10003; '+(isRu?'Завершить':isEn?'Complete maintenance':'Wartung abschliessen')+'</button>';
   }
   if(isDone&&u.dept==='admin'){
     h+='<button data-rcl-reset="'+num+'" style="width:100%;padding:8px;border:1px solid #cc3333;border-radius:7px;background:#1a0a0a;color:#ff6666;font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px">Reset</button>';
@@ -2804,6 +2815,13 @@ document.addEventListener('change',function(e){
 });
 
 boot();
+
+
+
+
+
+
+
 
 
 
