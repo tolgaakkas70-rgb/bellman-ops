@@ -369,6 +369,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 
 
 
+
+
+
+
+
+
 // ══════════════════════════════════════════════════════════════
 // BELLMAN OPS – Hotel Operations App
 // Version 8 – Clean rebuild
@@ -495,6 +501,9 @@ function fbListen(){
   db.ref('b8/mbItems').on('value',s=>{const v=s.val();if(Array.isArray(v)&&v.length>0){mbItems=v;set('mbItems',v);render();}});
   db.ref('b8/rezDep').on('value',s=>{const v=arr(s.val());rezDepList=v;set('rezDep',v);render();});
   db.ref('b8/vRooms').on('value',s=>{const v=s.val();if(v&&typeof v==='object'){Object.assign(vRooms,v);set('vRooms',vRooms);render();}});
+  db.ref('b8/clItems').on('value',s=>{const v=s.val();if(Array.isArray(v)&&v.length>0){CL_ITEMS=v;set('clItems',v);render();}});
+  db.ref('b8/roomClItems').on('value',s=>{const v=s.val();if(Array.isArray(v)&&v.length>0){ROOM_CL_ITEMS=v;set('roomClItems',v);render();}});
+  db.ref('b8/arbeitsarten').on('value',s=>{const v=s.val();if(v&&typeof v==='object'){ARBEITSARTEN=v;set('arbeitsarten',v);render();}});
 }
 
 function loadScript(src){
@@ -525,6 +534,9 @@ function boot(){
   LANG=get('lang','de');
   loadPins();
   roomClData=get(ROOM_CL_KEY,{});
+  CL_ITEMS=get('clItems',DEFAULT_CL_ITEMS);
+  ROOM_CL_ITEMS=get('roomClItems',DEFAULT_ROOM_CL_ITEMS);
+  ARBEITSARTEN=get('arbeitsarten',DEFAULT_ARBEITSARTEN);
   clData=get(CL_KEY,{status:'cl-open',acceptedBy:null,tAccepted:null,tDone:null,items:{}});
   siData=get(SI_KEY,{status:'si-open',acceptedBy:null,tAccepted:null,tDone:null,rooms:{}});
   // Daily reset for checklist and silikon
@@ -1043,6 +1055,7 @@ function renderMain(app){
   if(['supervisor','admin'].includes(u.dept))tabs.push({k:'verteilung',l:'📋 Verteilung'});
   tabs.push({k:'staff',l:'👥 Team'});
   if(u.dept==='admin'||u.dept==='technik'){tabs.push({k:'checklist',l:'Checkliste'});tabs.push({k:'roomcl',l:'Zimmerwartung'});}
+  if(u.dept==='admin')tabs.push({k:'lists',l:'📝 Listen'});
   tabs.push({k:'dashboard',l:'Dashboard'});
 
   const pbar=me&&me.isAdmin?renderPersonaBar():'';
@@ -1075,6 +1088,7 @@ function renderMain(app){
     ${tab==='checklist'?renderChecklistTab():''}
     ${tab==='dashboard'?renderDashboardTab():''}
     ${tab==='roomcl'?renderRoomChecklistTab():''}
+    ${tab==='lists'?renderListsTab():''}
     <div class="sep"></div>
     <button onclick="clearMe();screen='select';persona=null;rfData={loc:'',area:'',workType:'',workSub:'',desc:'',prio:'medium',imgs:[]};showRF=false;render()" style="width:100%;background:transparent;border:none;color:rgba(245,240,232,.5);font-size:13px;padding:14px 0;cursor:pointer;font-family:inherit;text-align:center">↩ Abmelden · ${esc(me.name)}</button>
   </div>`;
@@ -1737,7 +1751,7 @@ function buildOrtSelect(sel){
 }
 
 // ── ARBEITSARTEN ─────────────────────────────────────
-var ARBEITSARTEN={
+var DEFAULT_ARBEITSARTEN={
   'Elektrik':['Steckdose','Licht / Lampe','Lichtschalter','SuitePad','Gardinenmotor','Gardine','Gardinengleiter','Aussenjalousie','Fenster elektrisch','TV','Telefon','Safe'],
   'Sanitaer / Wasser':['Duschschlauch','Duschbrause','Duschbatterie','Abflussblech','Geruchsverschluss','Toilettensitz','WC-Spuelung','Waschbecken','Wasserhahn','Duschabtrennung','Handtuchhalter','Spiegel'],
   'Zimmer / Moebel':['Tuer','Tuersckloss / Karte','Schrank','Spiegel','Teppich','Holzverkleidung','Fenster manuell','Jalousie manuell','Buegeleisen','Buegelbrett','Minibar','Schreibtisch','Stuhl / Sofa'],
@@ -1812,7 +1826,7 @@ var showArchive=false;
 function saveClData(){set(CL_KEY,clData);}
 function saveSiData(){set(SI_KEY,siData);}
 
-var CL_ITEMS=[
+var DEFAULT_CL_ITEMS=[
   {id:'c01',cat:'Morgen',catRu:'Утро',p:false,l:'Fruehdienstbericht Rezeption abgeholt',r:'Получен отчёт ранней смены ресепшн'},
   {id:'c02',cat:'Morgen',catRu:'Утро',p:false,l:'Schichtuebegabe mit Nachtdienst',r:'Передача смены от ночной смены'},
   {id:'c03',cat:'KOeK Restaurant',catRu:'Ресторан KÖK',p:false,l:'Kueche auf Sauberkeit geprueft',r:'Кухня проверена на чистоту'},
@@ -2010,6 +2024,35 @@ function renderSilikonTab(){
 // ── DASHBOARD RENDER ──────────────────────────────────
 function renderDashboardTab(){
   var h='<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:14px;text-transform:uppercase;letter-spacing:.8px">Dashboard</div>';
+  // ── Team gerade aktiv ─────────────────────────────
+  var activeItems=[];
+  for(var ri=0;ri<repairs.length;ri++){
+    var r=repairs[ri];
+    if(r.status==='rp-progress'&&r.tStart){
+      var mins=Math.round((Date.now()-r.tStart)/60000)+(r.elapsedMin||0);
+      activeItems.push({who:r.byAccepted||'?',what:'Reparatur: '+(r.loc||'')+(r.workType?' \u2013 '+r.workType:''),mins:mins,type:'rep'});
+    }
+  }
+  var rcKeys=Object.keys(roomClData||{});
+  for(var rk=0;rk<rcKeys.length;rk++){
+    var rd=roomClData[rcKeys[rk]];
+    if(rd&&rd.status==='in_progress'&&rd.tStartMs){
+      var mins2=Math.round((Date.now()-rd.tStartMs)/60000);
+      activeItems.push({who:rd.startedBy||'?',what:'Zimmerwartung: Zi. '+rcKeys[rk],mins:mins2,type:'room'});
+    }
+  }
+  if(activeItems.length>0){
+    h+='<div style="background:#1a1200;border:1px solid #ffaa33;border-radius:12px;padding:14px;margin-bottom:14px">';
+    h+='<div style="font-size:12px;font-weight:700;color:#ffaa33;margin-bottom:10px;text-transform:uppercase">\u23f1 Gerade aktiv</div>';
+    for(var ai=0;ai<activeItems.length;ai++){
+      var a=activeItems[ai];
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,170,50,.15)">';
+      h+='<div><div style="font-size:13px;font-weight:600">'+esc(a.who)+'</div><div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(a.what)+'</div></div>';
+      h+='<div style="font-size:12px;color:#ffaa33;font-weight:700">'+rpTime(a.mins)+'</div>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   // HK
   var dirty=0,prog=0,clean=0,ready=0;
   for(var i=0;i<rooms.length;i++){var rs=rooms[i].status;if(rs==='dirty')dirty++;else if(rs==='progress')prog++;else if(rs==='clean')clean++;else if(rs==='ready')ready++;}
@@ -2231,7 +2274,7 @@ var ROOM_MAENGEL={
   '609':['Kein Knopf - Gardinen heben nicht','Kabel haengt aus Lampe']
 };
 
-var ROOM_CL_ITEMS=[
+var DEFAULT_ROOM_CL_ITEMS=[
   {id:'b01',cat:'Badezimmer',catRu:'Ванная',l:'Tuerzarge Bad: Aufquellen, Schimmel, Zustand',r:'Дверная коробка ванной: набухание, плесень, состояние'},
   {id:'b02',cat:'Badezimmer',catRu:'Ванная',l:'Duschbatterie: Funktion, Dichtung, Kalk',r:'Смеситель душа: работа, уплотнение, известковый налёт'},
   {id:'b03',cat:'Badezimmer',catRu:'Ванная',l:'Duschbrause: Kalk, Durchfluss',r:'Лейка душа: налёт, напор воды'},
@@ -2300,7 +2343,9 @@ function roomClAccept(num){
 function roomClDone(num){
   var d=getRoomCl(num);
   d.status='done';d.tDone=nowT();
-  saveRoomClData();toast('Zi. '+num+' Wartung abgeschlossen');render();
+  d.doneBy=(eu()&&eu().name)||'?';
+  if(d.tStartMs){d.elapsedMin=Math.round((Date.now()-d.tStartMs)/60000);d.tStartMs=null;}
+  saveRoomClData();toast('Zi. '+num+' Wartung abgeschlossen'+(d.elapsedMin?' \u2013 '+rpTime(d.elapsedMin):''));render();
 }
 function roomClReset(num){
   roomClData[num]={status:'open',acceptedBy:null,tStart:null,tDone:null,items:{},notes:'',maengelDone:{}};
@@ -2309,7 +2354,7 @@ function roomClReset(num){
 function roomClToggle(num,id){
   var d=getRoomCl(num);
   if(d.status==='done')return;
-  if(d.status==='open')d.status='in_progress';
+  if(d.status==='open'){d.status='in_progress';d.tStartMs=Date.now();d.startedBy=(eu()&&eu().name)||'?';}
   if(!d.items)d.items={};
   d.items[id]=!d.items[id];
   saveRoomClData();
@@ -2317,13 +2362,202 @@ function roomClToggle(num,id){
 function roomClMaengelToggle(num,idx){
   var d=getRoomCl(num);
   if(d.status==='done')return;
-  if(d.status==='open')d.status='in_progress';
+  if(d.status==='open'){d.status='in_progress';d.tStartMs=Date.now();d.startedBy=(eu()&&eu().name)||'?';}
   if(!d.maengelDone)d.maengelDone={};
   d.maengelDone[idx]=!d.maengelDone[idx];
   saveRoomClData();
 }
 function roomClNote(num,val){
   var d=getRoomCl(num);d.notes=val;saveRoomClData();
+}
+
+
+// ── ADMIN: LISTEN VERWALTEN ──────────────────────────────────
+var listsSubTab='cl';
+var listsEditCat={cl:'',room:'',arb:''};
+var listsNewItem={clCat:'',clText:'',clP:false,roomCat:'',roomText:'',arbCat:'',arbText:'',newArbCat:''};
+
+function renderListsTab(){
+  var h='';
+  h+='<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px">Listen verwalten</div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:14px">';
+  h+='<button onclick="listsSubTab=\'cl\';render()" style="flex:1;padding:9px;border-radius:8px;border:1px solid '+(listsSubTab==='cl'?'var(--gold)':'rgba(255,255,255,.15)')+';background:'+(listsSubTab==='cl'?'var(--gdim)':'var(--navy2)')+';color:'+(listsSubTab==='cl'?'var(--gold)':'var(--white)')+';font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Checkliste</button>';
+  h+='<button onclick="listsSubTab=\'room\';render()" style="flex:1;padding:9px;border-radius:8px;border:1px solid '+(listsSubTab==='room'?'var(--gold)':'rgba(255,255,255,.15)')+';background:'+(listsSubTab==='room'?'var(--gdim)':'var(--navy2)')+';color:'+(listsSubTab==='room'?'var(--gold)':'var(--white)')+';font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Zimmerwartung</button>';
+  h+='<button onclick="listsSubTab=\'arb\';render()" style="flex:1;padding:9px;border-radius:8px;border:1px solid '+(listsSubTab==='arb'?'var(--gold)':'rgba(255,255,255,.15)')+';background:'+(listsSubTab==='arb'?'var(--gdim)':'var(--navy2)')+';color:'+(listsSubTab==='arb'?'var(--gold)':'var(--white)')+';font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Reparatur</button>';
+  h+='</div>';
+  if(listsSubTab==='cl')h+=renderClItemsEditor();
+  else if(listsSubTab==='room')h+=renderRoomItemsEditor();
+  else h+=renderArbeitsartenEditor();
+  return h;
+}
+
+function renderClItemsEditor(){
+  var h='';
+  var cats={};var catOrd=[];
+  for(var i=0;i<CL_ITEMS.length;i++){var it=CL_ITEMS[i];if(!cats[it.cat]){cats[it.cat]=[];catOrd.push(it.cat);}cats[it.cat].push(it);}
+  for(var ci=0;ci<catOrd.length;ci++){
+    var cat=catOrd[ci];
+    h+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px">'+esc(cat)+'</div>';
+    var its=cats[cat];
+    for(var ii=0;ii<its.length;ii++){
+      var it2=its[ii];
+      h+='<div style="display:flex;align-items:center;gap:8px;background:var(--navy2);border-radius:8px;padding:8px 10px;margin-bottom:5px">';
+      h+='<div style="flex:1;font-size:13px">'+esc(it2.l)+(it2.p?' <span style="color:#ff6666;font-size:10px">PFLICHT</span>':'')+'</div>';
+      h+='<button onclick="editClItem(\''+it2.id+'\')" style="background:rgba(255,200,50,.15);border:none;color:var(--gold);padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Bearb.</button>';
+      h+='<button onclick="deleteClItem(\''+it2.id+'\')" style="background:rgba(255,80,80,.15);border:none;color:#ff6666;padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Löschen</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  h+='<div style="background:var(--navy2);border-radius:10px;padding:12px;margin-top:10px">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">NEUER PUNKT</div>';
+  h+='<input id="ncl-cat" placeholder="Kategorie" value="'+esc(listsNewItem.clCat)+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px;color:var(--white);font-size:13px;font-family:inherit;margin-bottom:6px" oninput="listsNewItem.clCat=this.value">';
+  h+='<input id="ncl-text" placeholder="Text" value="'+esc(listsNewItem.clText)+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px;color:var(--white);font-size:13px;font-family:inherit;margin-bottom:6px" oninput="listsNewItem.clText=this.value">';
+  h+='<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px"><input type="checkbox" '+(listsNewItem.clP?'checked':'')+' onchange="listsNewItem.clP=this.checked"> Pflichtpunkt</label>';
+  h+='<button onclick="addClItem()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ Hinzufügen</button>';
+  h+='</div>';
+  return h;
+}
+
+function renderRoomItemsEditor(){
+  var h='';
+  var cats={};var catOrd=[];
+  for(var i=0;i<ROOM_CL_ITEMS.length;i++){var it=ROOM_CL_ITEMS[i];if(!cats[it.cat]){cats[it.cat]=[];catOrd.push(it.cat);}cats[it.cat].push(it);}
+  for(var ci=0;ci<catOrd.length;ci++){
+    var cat=catOrd[ci];
+    h+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px">'+esc(cat)+'</div>';
+    var its=cats[cat];
+    for(var ii=0;ii<its.length;ii++){
+      var it2=its[ii];
+      h+='<div style="display:flex;align-items:center;gap:8px;background:var(--navy2);border-radius:8px;padding:8px 10px;margin-bottom:5px">';
+      h+='<div style="flex:1;font-size:13px">'+esc(it2.l)+'</div>';
+      h+='<button onclick="editRoomItem(\''+it2.id+'\')" style="background:rgba(255,200,50,.15);border:none;color:var(--gold);padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Bearb.</button>';
+      h+='<button onclick="deleteRoomItem(\''+it2.id+'\')" style="background:rgba(255,80,80,.15);border:none;color:#ff6666;padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Löschen</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  h+='<div style="background:var(--navy2);border-radius:10px;padding:12px;margin-top:10px">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">NEUER PUNKT</div>';
+  h+='<input id="nroom-cat" placeholder="Kategorie" value="'+esc(listsNewItem.roomCat)+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px;color:var(--white);font-size:13px;font-family:inherit;margin-bottom:6px" oninput="listsNewItem.roomCat=this.value">';
+  h+='<input id="nroom-text" placeholder="Text" value="'+esc(listsNewItem.roomText)+'" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px;color:var(--white);font-size:13px;font-family:inherit;margin-bottom:8px" oninput="listsNewItem.roomText=this.value">';
+  h+='<button onclick="addRoomItem()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ Hinzufügen</button>';
+  h+='</div>';
+  return h;
+}
+
+function renderArbeitsartenEditor(){
+  var h='';
+  var cats=Object.keys(ARBEITSARTEN);
+  for(var ci=0;ci<cats.length;ci++){
+    var cat=cats[ci];
+    h+='<div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    h+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.4)">'+esc(cat)+'</div>';
+    h+='<button onclick="deleteArbCat(\''+esc(cat).replace(/'/g,"\\'")+'\')" style="background:rgba(255,80,80,.15);border:none;color:#ff6666;padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit">Kategorie löschen</button>';
+    h+='</div>';
+    var items=ARBEITSARTEN[cat];
+    for(var ii=0;ii<items.length;ii++){
+      h+='<div style="display:flex;align-items:center;gap:8px;background:var(--navy2);border-radius:8px;padding:8px 10px;margin-bottom:5px">';
+      h+='<div style="flex:1;font-size:13px">'+esc(items[ii])+'</div>';
+      h+='<button onclick="editArbItem(\''+esc(cat).replace(/'/g,"\\'")+'\','+ii+')" style="background:rgba(255,200,50,.15);border:none;color:var(--gold);padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Bearb.</button>';
+      h+='<button onclick="deleteArbItem(\''+esc(cat).replace(/'/g,"\\'")+'\','+ii+')" style="background:rgba(255,80,80,.15);border:none;color:#ff6666;padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Löschen</button>';
+      h+='</div>';
+    }
+    h+='<div style="display:flex;gap:6px;margin-top:4px">';
+    h+='<input id="narb-'+ci+'" placeholder="Neuer Typ..." style="flex:1;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:7px;color:var(--white);font-size:12px;font-family:inherit">';
+    h+='<button onclick="addArbItem(\''+esc(cat).replace(/'/g,"\\'")+'\',document.getElementById(\'narb-'+ci+'\').value);document.getElementById(\'narb-'+ci+'\').value=\'\'" style="padding:7px 12px;border:none;border-radius:7px;background:var(--gold);color:#0d1b2e;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">+</button>';
+    h+='</div></div>';
+  }
+  h+='<div style="background:var(--navy2);border-radius:10px;padding:12px;margin-top:10px">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">NEUE KATEGORIE</div>';
+  h+='<input id="narb-cat" placeholder="Kategoriename" style="width:100%;box-sizing:border-box;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px;color:var(--white);font-size:13px;font-family:inherit;margin-bottom:8px">';
+  h+='<button onclick="addArbCat(document.getElementById(\'narb-cat\').value)" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#0d1b2e;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ Kategorie hinzufügen</button>';
+  h+='</div>';
+  return h;
+}
+
+// ── CL_ITEMS Actions ──────────────────────────────────────
+function addClItem(){
+  var cat=(document.getElementById('ncl-cat')||{}).value||listsNewItem.clCat;
+  var text=(document.getElementById('ncl-text')||{}).value||listsNewItem.clText;
+  if(!cat||!text){toast('Kategorie und Text erforderlich');return;}
+  var id='c'+Date.now();
+  CL_ITEMS.push({id:id,cat:cat,catRu:cat,p:!!listsNewItem.clP,l:text,r:text});
+  listsNewItem.clCat='';listsNewItem.clText='';listsNewItem.clP=false;
+  saveClItems();render();toast('Punkt hinzugefügt');
+}
+function deleteClItem(id){
+  if(!confirm('Diesen Punkt wirklich löschen?'))return;
+  CL_ITEMS=CL_ITEMS.filter(function(it){return it.id!==id;});
+  saveClItems();render();toast('Gelöscht');
+}
+function editClItem(id){
+  var it=CL_ITEMS.find(function(x){return x.id===id;});
+  if(!it)return;
+  var newText=prompt('Text bearbeiten:',it.l);
+  if(newText===null)return;
+  var newCat=prompt('Kategorie:',it.cat);
+  if(newCat===null)return;
+  it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
+  saveClItems();render();toast('Aktualisiert');
+}
+
+// ── ROOM_CL_ITEMS Actions ──────────────────────────────────
+function addRoomItem(){
+  var cat=(document.getElementById('nroom-cat')||{}).value||listsNewItem.roomCat;
+  var text=(document.getElementById('nroom-text')||{}).value||listsNewItem.roomText;
+  if(!cat||!text){toast('Kategorie und Text erforderlich');return;}
+  var id='r'+Date.now();
+  ROOM_CL_ITEMS.push({id:id,cat:cat,catRu:cat,l:text,r:text});
+  listsNewItem.roomCat='';listsNewItem.roomText='';
+  saveRoomClItems();render();toast('Punkt hinzugefügt');
+}
+function deleteRoomItem(id){
+  if(!confirm('Diesen Punkt wirklich löschen?'))return;
+  ROOM_CL_ITEMS=ROOM_CL_ITEMS.filter(function(it){return it.id!==id;});
+  saveRoomClItems();render();toast('Gelöscht');
+}
+function editRoomItem(id){
+  var it=ROOM_CL_ITEMS.find(function(x){return x.id===id;});
+  if(!it)return;
+  var newText=prompt('Text bearbeiten:',it.l);
+  if(newText===null)return;
+  var newCat=prompt('Kategorie:',it.cat);
+  if(newCat===null)return;
+  it.l=newText;it.r=newText;it.cat=newCat;it.catRu=newCat;
+  saveRoomClItems();render();toast('Aktualisiert');
+}
+
+// ── ARBEITSARTEN Actions ────────────────────────────────────
+function addArbCat(name){
+  name=(name||'').trim();
+  if(!name){toast('Name erforderlich');return;}
+  if(!ARBEITSARTEN[name])ARBEITSARTEN[name]=[];
+  saveArbeitsarten();render();toast('Kategorie hinzugefügt');
+}
+function deleteArbCat(cat){
+  if(!confirm('Kategorie "'+cat+'" mit allen Punkten löschen?'))return;
+  delete ARBEITSARTEN[cat];
+  saveArbeitsarten();render();toast('Gelöscht');
+}
+function addArbItem(cat,text){
+  text=(text||'').trim();
+  if(!text){toast('Text erforderlich');return;}
+  if(!ARBEITSARTEN[cat])ARBEITSARTEN[cat]=[];
+  ARBEITSARTEN[cat].push(text);
+  saveArbeitsarten();render();toast('Hinzugefügt');
+}
+function deleteArbItem(cat,idx){
+  if(!confirm('Diesen Punkt löschen?'))return;
+  ARBEITSARTEN[cat].splice(idx,1);
+  saveArbeitsarten();render();toast('Gelöscht');
+}
+function editArbItem(cat,idx){
+  var oldVal=ARBEITSARTEN[cat][idx];
+  var newVal=prompt('Text bearbeiten:',oldVal);
+  if(newVal===null||!newVal.trim())return;
+  ARBEITSARTEN[cat][idx]=newVal.trim();
+  saveArbeitsarten();render();toast('Aktualisiert');
 }
 
 function renderRoomChecklistTab(){
@@ -2376,6 +2610,14 @@ function renderRoomChecklistTab(){
   return h;
 }
 
+var CL_ITEMS=DEFAULT_CL_ITEMS;
+var ROOM_CL_ITEMS=DEFAULT_ROOM_CL_ITEMS;
+var ARBEITSARTEN=DEFAULT_ARBEITSARTEN;
+
+function saveClItems(){set('clItems',CL_ITEMS);if(db)db.ref('b8/clItems').set(CL_ITEMS).catch(function(){});}
+function saveRoomClItems(){set('roomClItems',ROOM_CL_ITEMS);if(db)db.ref('b8/roomClItems').set(ROOM_CL_ITEMS).catch(function(){});}
+function saveArbeitsarten(){set('arbeitsarten',ARBEITSARTEN);if(db)db.ref('b8/arbeitsarten').set(ARBEITSARTEN).catch(function(){});}
+
 function getRoomCl(num){
   if(!roomClData[num])roomClData[num]={status:'open',acceptedBy:null,tStart:null,tDone:null,items:{},notes:'',maengelDone:{}};
   return roomClData[num];
@@ -2395,7 +2637,8 @@ function renderRoomDetail(num){
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
   h+='<button id="rcl-back" style="background:rgba(255,255,255,.1);border:none;color:var(--white);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">&#8592; '+(isRu?'Назад':'Zurueck')+'</button>';
   h+='<span style="font-size:16px;font-weight:700;color:var(--gold)">Zimmer '+num+'</span>';
-  if(isDone) h+='<span style="font-size:11px;color:#22cc44;font-weight:600">&#10003; Fertig</span>';
+  if(isDone) h+='<span style="font-size:11px;color:#22cc44;font-weight:600">&#10003; Fertig'+(rd.elapsedMin?' ('+rpTime(rd.elapsedMin)+')':'')+'</span>';
+  else if(rd.tStartMs) h+='<span style="font-size:11px;color:#ffaa33;font-weight:600">\u23f1 '+esc(rd.startedBy||'')+' \u00b7 l\u00e4uft</span>';
   h+='</div>';
   h+='<div style="background:rgba(0,0,0,.3);border-radius:4px;height:4px;margin-bottom:8px"><div style="background:#ffaa33;height:4px;border-radius:4px;width:'+pct+'%"></div></div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px">'+totalDone+'/'+totalItems+' erledigt</div>';
@@ -2502,6 +2745,12 @@ document.addEventListener('change',function(e){
 });
 
 boot();
+
+
+
+
+
+
 
 
 
